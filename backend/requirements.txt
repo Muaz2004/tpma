@@ -1,0 +1,5 @@
+Django>=4.2
+graphene-django
+djangorestframework
+PyJWT
+psycopg2-binary
