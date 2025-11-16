@@ -3,16 +3,11 @@ from graphql import GraphQLError
 from core.models import Project, Task, CustomUser
 from core.graphql.types import ProjectType, TaskType
 from datetime import date
+from core.graphql.auth import get_user_from_info
 
 
-# -----------------------------
-# Helper: get logged-in user
-# -----------------------------
-def get_user(info):
-    user = info.context.user
-    if user.is_anonymous:
-        raise GraphQLError("Authentication required")
-    return user
+
+
 
 
 # -----------------------------
