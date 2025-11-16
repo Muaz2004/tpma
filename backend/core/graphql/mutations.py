@@ -18,6 +18,7 @@ def get_user(info):
 # -----------------------------
 # CREATE PROJECT
 # -----------------------------
+
 class CreateProject(graphene.Mutation):
     project = graphene.Field(ProjectType)
 
@@ -124,12 +125,44 @@ class AssignTask(graphene.Mutation):
         task.save()
 
         return AssignTask(task=task)
+    
+
+
+import graphene
+from graphql import GraphQLError
+from django.contrib.auth import authenticate
+from core.models import CustomUser
+from core.utils.jwt import generate_jwt
+
+class LoginMutation(graphene.Mutation):
+    token = graphene.String()
+    user_id = graphene.ID()
+    username = graphene.String()
+    role = graphene.String()
+
+    class Arguments:
+        username = graphene.String(required=True)
+        password = graphene.String(required=True)
+
+    def mutate(self, info, username, password):
+        user = authenticate(username=username, password=password)
+        if not user:
+            raise GraphQLError("Invalid credentials")
+        token = generate_jwt(user)
+        return LoginMutation(
+            token=token, 
+            user_id=user.id, 
+            username=user.username, 
+            role=user.role
+        )
+
 
 
 # -----------------------------
 # ROOT MUTATION
 # -----------------------------
 class Mutation(graphene.ObjectType):
+    login = LoginMutation.Field()
     create_project = CreateProject.Field()
     create_task = CreateTask.Field()
     update_task_status = UpdateTaskStatus.Field()

@@ -130,3 +130,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'core.CustomUser'
 
+from decouple import config
+
+JWT_SECRET = config("JWT_SECRET")
+JWT_EXP_DELTA_SECONDS = int(config("JWT_EXP_DELTA_SECONDS"))
+JWT_ALGORITHM = "HS256"
