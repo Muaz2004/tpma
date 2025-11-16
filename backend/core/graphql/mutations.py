@@ -24,8 +24,7 @@ class CreateProject(graphene.Mutation):
         end_date = graphene.Date(required=True)
 
     def mutate(self, info, name, description, start_date, end_date):
-        user = get_user(info)
-
+        user = get_user_from_info(info)
         if user.role != "Manager":
             raise GraphQLError("Only managers can create projects")
 
