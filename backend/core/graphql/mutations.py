@@ -53,7 +53,7 @@ class CreateTask(graphene.Mutation):
         due_date = graphene.Date(required=True)
 
     def mutate(self, info, title, description, assigned_to, project, due_date):
-        user = get_user(info)
+        user =get_user_from_info(info)
 
         if user.role != "Manager":
             raise GraphQLError("Only managers can create tasks")
@@ -83,7 +83,7 @@ class UpdateTaskStatus(graphene.Mutation):
         status = graphene.String(required=True)
 
     def mutate(self, info, task_id, status):
-        user = get_user(info)
+        user =get_user_from_info(info)
 
         task = Task.objects.get(id=task_id)
 
@@ -107,7 +107,7 @@ class AssignTask(graphene.Mutation):
         user_id = graphene.ID(required=True)
 
     def mutate(self, info, task_id, user_id):
-        user = get_user(info)
+        user =get_user_from_info(info)
 
         if user.role != "Manager":
             raise GraphQLError("Only managers can assign tasks")
