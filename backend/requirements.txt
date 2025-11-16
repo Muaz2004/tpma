@@ -3,3 +3,5 @@ graphene-django
 djangorestframework
 PyJWT
 psycopg2-binary
+python-decouple
+
