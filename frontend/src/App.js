@@ -1,23 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
+import { gql, useQuery } from '@apollo/client';
+
+const GET_PROJECTS = gql`
+  query GetProjects {
+    allProjects {
+      id
+      name
+      description
+    }
+  }
+`;
 
 function App() {
+  const { loading, error, data } = useQuery(GET_PROJECTS);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Projects</h1>
+      <ul>
+        {data.allProjects.map(project => (
+          <li key={project.id}>{project.name}: {project.description}</li>
+        ))}
+      </ul>
     </div>
   );
 }
