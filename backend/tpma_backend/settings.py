@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
      'core',
      "graphene_django",
+     "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -49,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = 'tpma_backend.urls'
@@ -136,3 +138,8 @@ from decouple import config
 JWT_SECRET = config("JWT_SECRET")
 JWT_EXP_DELTA_SECONDS = int(config("JWT_EXP_DELTA_SECONDS"))
 JWT_ALGORITHM = "HS256"
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    # add your deployed frontend URL here
+]
