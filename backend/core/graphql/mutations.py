@@ -4,16 +4,12 @@ from core.models import Project, Task, CustomUser
 from core.graphql.types import ProjectType, TaskType
 from datetime import date
 from core.graphql.auth import get_user_from_info
-
-
-
-
-
+from django.contrib.auth import authenticate
+from core.utils.jwt import generate_jwt
 
 # -----------------------------
 # CREATE PROJECT
 # -----------------------------
-
 class CreateProject(graphene.Mutation):
     project = graphene.Field(ProjectType)
 
@@ -38,9 +34,9 @@ class CreateProject(graphene.Mutation):
 
         return CreateProject(project=project)
     
-
-    # update project
-    
+# -----------------------------
+# UPDATE PROJECT
+# -----------------------------
 class UpdateProject(graphene.Mutation):
     project = graphene.Field(ProjectType)
 
@@ -51,7 +47,10 @@ class UpdateProject(graphene.Mutation):
 
     def mutate(self, info, project_id, name=None, description=None):
         user = get_user_from_info(info)
-        project = Project.objects.get(id=project_id)
+        try:
+            project = Project.objects.get(id=project_id)
+        except Project.DoesNotExist:
+            raise GraphQLError("Project not found")
 
         # Permission check: must be Manager or Creator
         if user.role != "Manager" and user != project.creator:
@@ -65,7 +64,9 @@ class UpdateProject(graphene.Mutation):
         project.save()
         return UpdateProject(project=project)
 
-    # delete project
+# -----------------------------
+# DELETE PROJECT
+# -----------------------------
 class DeleteProject(graphene.Mutation):
     success = graphene.Boolean()
 
@@ -74,23 +75,16 @@ class DeleteProject(graphene.Mutation):
 
     def mutate(self, info, project_id):
         user = get_user_from_info(info)
-        project = Project.objects.get(id=project_id)
+        try:
+            project = Project.objects.get(id=project_id)
+        except Project.DoesNotExist:
+            raise GraphQLError("Project not found")
 
         if user.role != "Manager" and user != project.creator:
             raise GraphQLError("Only the project creator or a Manager can delete this project.")
 
         project.delete()
         return DeleteProject(success=True)
-
-    
-    
-    
-
-        
-
-
-
-
 
 # -----------------------------
 # CREATE TASK
@@ -106,13 +100,19 @@ class CreateTask(graphene.Mutation):
         due_date = graphene.Date(required=True)
 
     def mutate(self, info, title, description, assigned_to, project, due_date):
-        user =get_user_from_info(info)
-
+        user = get_user_from_info(info)
         if user.role != "Manager":
             raise GraphQLError("Only managers can create tasks")
 
-        assigned_user = CustomUser.objects.get(id=assigned_to)
-        project_obj = Project.objects.get(id=project)
+        try:
+            assigned_user = CustomUser.objects.get(id=assigned_to)
+        except CustomUser.DoesNotExist:
+            raise GraphQLError("Assigned user not found")
+
+        try:
+            project_obj = Project.objects.get(id=project)
+        except Project.DoesNotExist:
+            raise GraphQLError("Project not found")
 
         task = Task.objects.create(
             title=title,
@@ -123,7 +123,6 @@ class CreateTask(graphene.Mutation):
         )
 
         return CreateTask(task=task)
-
 
 # -----------------------------
 # UPDATE TASK STATUS
@@ -136,9 +135,11 @@ class UpdateTaskStatus(graphene.Mutation):
         status = graphene.String(required=True)
 
     def mutate(self, info, task_id, status):
-        user =get_user_from_info(info)
-
-        task = Task.objects.get(id=task_id)
+        user = get_user_from_info(info)
+        try:
+            task = Task.objects.get(id=task_id)
+        except Task.DoesNotExist:
+            raise GraphQLError("Task not found")
 
         if task.assigned_to != user and user.role != "Manager":
             raise GraphQLError("You cannot update someone else's task")
@@ -147,10 +148,10 @@ class UpdateTaskStatus(graphene.Mutation):
         task.save()
 
         return UpdateTaskStatus(task=task)
-    
 
-#task update
-
+# -----------------------------
+# UPDATE TASK
+# -----------------------------
 class UpdateTask(graphene.Mutation):
     task = graphene.Field(TaskType)
 
@@ -163,9 +164,11 @@ class UpdateTask(graphene.Mutation):
 
     def mutate(self, info, task_id, title=None, description=None, status=None, due_date=None):
         user = get_user_from_info(info)
-        task = Task.objects.get(id=task_id)
+        try:
+            task = Task.objects.get(id=task_id)
+        except Task.DoesNotExist:
+            raise GraphQLError("Task not found")
 
-        # Permissions: Only assigned user or Manager can update task
         if user != task.assigned_to and user.role != "Manager":
             raise GraphQLError("You cannot update a task that is not yours unless you are a Manager.")
 
@@ -183,8 +186,6 @@ class UpdateTask(graphene.Mutation):
         task.save()
         return UpdateTask(task=task)
 
-
-
 # -----------------------------
 # ASSIGN TASK TO USER
 # -----------------------------
@@ -196,21 +197,28 @@ class AssignTask(graphene.Mutation):
         user_id = graphene.ID(required=True)
 
     def mutate(self, info, task_id, user_id):
-        user =get_user_from_info(info)
-
+        user = get_user_from_info(info)
         if user.role != "Manager":
             raise GraphQLError("Only managers can assign tasks")
 
-        task = Task.objects.get(id=task_id)
-        new_user = CustomUser.objects.get(id=user_id)
+        try:
+            task = Task.objects.get(id=task_id)
+        except Task.DoesNotExist:
+            raise GraphQLError("Task not found")
+
+        try:
+            new_user = CustomUser.objects.get(id=user_id)
+        except CustomUser.DoesNotExist:
+            raise GraphQLError("User not found")
 
         task.assigned_to = new_user
         task.save()
 
         return AssignTask(task=task)
-    
 
-# dlete Task
+# -----------------------------
+# DELETE TASK
+# -----------------------------
 class DeleteTask(graphene.Mutation):
     success = graphene.Boolean()
 
@@ -219,7 +227,10 @@ class DeleteTask(graphene.Mutation):
 
     def mutate(self, info, task_id):
         user = get_user_from_info(info)
-        task = Task.objects.get(id=task_id)
+        try:
+            task = Task.objects.get(id=task_id)
+        except Task.DoesNotExist:
+            raise GraphQLError("Task not found")
 
         if user.role != "Manager":
             raise GraphQLError("Only a Manager can delete tasks.")
@@ -227,17 +238,9 @@ class DeleteTask(graphene.Mutation):
         task.delete()
         return DeleteTask(success=True)
 
-
-
-
-
-
-import graphene
-from graphql import GraphQLError
-from django.contrib.auth import authenticate
-from core.models import CustomUser
-from core.utils.jwt import generate_jwt
-
+# -----------------------------
+# LOGIN
+# -----------------------------
 class LoginMutation(graphene.Mutation):
     token = graphene.String()
     user_id = graphene.ID()
@@ -254,13 +257,11 @@ class LoginMutation(graphene.Mutation):
             raise GraphQLError("Invalid credentials")
         token = generate_jwt(user)
         return LoginMutation(
-            token=token, 
-            user_id=user.id, 
-            username=user.username, 
+            token=token,
+            user_id=user.id,
+            username=user.username,
             role=user.role
         )
-
-
 
 # -----------------------------
 # ROOT MUTATION
