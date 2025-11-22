@@ -1,4 +1,5 @@
 import graphene
+from graphql import GraphQLError
 from core.models import Project, Task, CustomUser
 from core.graphql.types import ProjectType, TaskType, UserType
 
@@ -39,13 +40,19 @@ class Query(graphene.ObjectType):
         return CustomUser.objects.all()
 
     def resolve_user(root, info, id):
-        return CustomUser.objects.get(id=id)
+        try:
+            return CustomUser.objects.get(id=id)
+        except CustomUser.DoesNotExist:
+            raise GraphQLError("User not found")
 
     def resolve_all_projects(root, info):
         return Project.objects.all()
 
     def resolve_project(root, info, id):
-        return Project.objects.get(id=id)
+        try:
+            return Project.objects.get(id=id)
+        except Project.DoesNotExist:
+            raise GraphQLError("Project not found")
 
     def resolve_projects_by_user(root, info, user_id):
         return Project.objects.filter(creator_id=user_id)
@@ -54,7 +61,10 @@ class Query(graphene.ObjectType):
         return Task.objects.all()
 
     def resolve_task(root, info, id):
-        return Task.objects.get(id=id)
+        try:
+            return Task.objects.get(id=id)
+        except Task.DoesNotExist:
+            raise GraphQLError("Task not found")
 
     def resolve_tasks_by_project(root, info, project_id):
         return Task.objects.filter(project_id=project_id)

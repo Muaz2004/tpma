@@ -267,7 +267,15 @@ class LoginMutation(graphene.Mutation):
 # -----------------------------
 class Mutation(graphene.ObjectType):
     login = LoginMutation.Field()
+
+    # Project Mutations
     create_project = CreateProject.Field()
+    update_project = UpdateProject.Field()
+    delete_project = DeleteProject.Field()
+
+    # Task Mutations
     create_task = CreateTask.Field()
+    update_task = UpdateTask.Field()
     update_task_status = UpdateTaskStatus.Field()
     assign_task = AssignTask.Field()
+    delete_task = DeleteTask.Field()
