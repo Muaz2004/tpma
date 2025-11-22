@@ -38,6 +38,9 @@ class CreateProject(graphene.Mutation):
 
         return CreateProject(project=project)
     
+
+    # update project
+    
 class UpdateProject(graphene.Mutation):
     project = graphene.Field(ProjectType)
 
@@ -61,6 +64,27 @@ class UpdateProject(graphene.Mutation):
 
         project.save()
         return UpdateProject(project=project)
+
+    # delete project
+class DeleteProject(graphene.Mutation):
+    success = graphene.Boolean()
+
+    class Arguments:
+        project_id = graphene.ID(required=True)
+
+    def mutate(self, info, project_id):
+        user = get_user_from_info(info)
+        project = Project.objects.get(id=project_id)
+
+        if user.role != "Manager" and user != project.creator:
+            raise GraphQLError("Only the project creator or a Manager can delete this project.")
+
+        project.delete()
+        return DeleteProject(success=True)
+
+    
+    
+    
 
         
 
@@ -123,6 +147,42 @@ class UpdateTaskStatus(graphene.Mutation):
         task.save()
 
         return UpdateTaskStatus(task=task)
+    
+
+#task update
+
+class UpdateTask(graphene.Mutation):
+    task = graphene.Field(TaskType)
+
+    class Arguments:
+        task_id = graphene.ID(required=True)
+        title = graphene.String(required=False)
+        description = graphene.String(required=False)
+        status = graphene.String(required=False)
+        due_date = graphene.Date(required=False)
+
+    def mutate(self, info, task_id, title=None, description=None, status=None, due_date=None):
+        user = get_user_from_info(info)
+        task = Task.objects.get(id=task_id)
+
+        # Permissions: Only assigned user or Manager can update task
+        if user != task.assigned_to and user.role != "Manager":
+            raise GraphQLError("You cannot update a task that is not yours unless you are a Manager.")
+
+        if title is not None:
+            task.title = title
+        if description is not None:
+            task.description = description
+        if status is not None:
+            if status not in ["ToDo", "InProgress", "Done"]:
+                raise GraphQLError("Invalid status value.")
+            task.status = status
+        if due_date is not None:
+            task.due_date = due_date
+
+        task.save()
+        return UpdateTask(task=task)
+
 
 
 # -----------------------------
@@ -148,6 +208,11 @@ class AssignTask(graphene.Mutation):
         task.save()
 
         return AssignTask(task=task)
+    
+
+# dlete Task
+
+
     
 
 
