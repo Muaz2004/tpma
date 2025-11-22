@@ -37,6 +37,35 @@ class CreateProject(graphene.Mutation):
         )
 
         return CreateProject(project=project)
+    
+class UpdateProject(graphene.Mutation):
+    project = graphene.Field(ProjectType)
+
+    class Arguments:
+        project_id = graphene.ID(required=True)
+        name = graphene.String(required=False)
+        description = graphene.String(required=False)
+
+    def mutate(self, info, project_id, name=None, description=None):
+        user = get_user_from_info(info)
+        project = Project.objects.get(id=project_id)
+
+        # Permission check: must be Manager or Creator
+        if user.role != "Manager" and user != project.creator:
+            raise GraphQLError("Only the project creator or a Manager can update the project.")
+        
+        if name is not None:
+            project.name = name
+        if description is not None:
+            project.description = description
+
+        project.save()
+        return UpdateProject(project=project)
+
+        
+
+
+
 
 
 # -----------------------------
