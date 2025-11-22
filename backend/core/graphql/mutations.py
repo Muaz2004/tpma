@@ -213,6 +213,7 @@ class AssignTask(graphene.Mutation):
 # dlete Task
 class DeleteTask(graphene.Mutation):
     success = graphene.Boolean()
+
     class Arguments:
         task_id = graphene.ID(required=True)
 
@@ -220,11 +221,12 @@ class DeleteTask(graphene.Mutation):
         user = get_user_from_info(info)
         task = Task.objects.get(id=task_id)
 
-        if user.role != "Manager" :
-            raise GraphQLError("Only the project Manager can delete this task.")
+        if user.role != "Manager":
+            raise GraphQLError("Only a Manager can delete tasks.")
 
         task.delete()
-        return DeleteProject(success=True)
+        return DeleteTask(success=True)
+
 
 
 
