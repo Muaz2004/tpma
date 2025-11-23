@@ -1,13 +1,15 @@
 import React from "react";
-import ReactDOM from "react-dom/client";
+import ReactDOM from "react-dom";
 import App from "./App";
 import { AuthProvider } from "./context/AuthContext";
+import { ApolloProvider } from "@apollo/client";
+import client from "./apollo/client";
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <React.StrictMode>
-    <AuthProvider>
+ReactDOM.render(
+  <AuthProvider>
+    <ApolloProvider client={client}>
       <App />
-    </AuthProvider>
-  </React.StrictMode>
+    </ApolloProvider>
+  </AuthProvider>,
+  document.getElementById("root")
 );
