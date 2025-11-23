@@ -5,6 +5,7 @@ export const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [error, setError] = useState(null);
 
   // Keep user logged in on refresh
   useEffect(() => {
@@ -18,23 +19,39 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = (userData, jwtToken) => {
-    setUser(userData);
-    setToken(jwtToken);
+    try {
+      setUser(userData);
+      setToken(jwtToken);
 
-    localStorage.setItem("user", JSON.stringify(userData));
-    localStorage.setItem("token", jwtToken);
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("token", jwtToken);
+
+      setError(null); // clear previous errors
+    } catch (err) {
+      setError("Failed to save login data.");
+    }
   };
 
   const logout = () => {
-    setUser(null);
-    setToken(null);
+    try {
+      setUser(null);
+      setToken(null);
 
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+
+      setError(null);
+    } catch (err) {
+      setError("Logout failed.");
+    }
   };
 
+  const clearError = () => setError(null);
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, token, login, logout, error, clearError }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -1,12 +1,25 @@
 import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
+import { onError } from "@apollo/client/link/error";
 
-// HTTP link to backend GraphQL endpoint
-const httpLink = createHttpLink({
-  uri: process.env.REACT_APP_BACKEND_URL, // http://backend:8000/graphql/ inside Docker
+// Error handling link
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+  if (graphQLErrors) {
+    graphQLErrors.forEach(({ message }) => {
+      console.error(`GraphQL Error: ${message}`);
+    });
+  }
+  if (networkError) {
+    console.error(`Network Error: ${networkError}`);
+  }
 });
 
-// Auth link to attach JWT token
+// HTTP link to backend
+const httpLink = createHttpLink({
+  uri: process.env.REACT_APP_BACKEND_URL,
+});
+
+// Auth link to attach JWT
 const authLink = setContext((_, { headers }) => {
   const token = localStorage.getItem("user")
     ? JSON.parse(localStorage.getItem("user")).token
@@ -20,9 +33,9 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
-// Apollo client instance
+// Apollo Client instance
 const client = new ApolloClient({
-  link: authLink.concat(httpLink),
+  link: errorLink.concat(authLink.concat(httpLink)),
   cache: new InMemoryCache(),
 });
 
