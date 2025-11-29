@@ -1,30 +1,19 @@
-import { gql, useQuery } from '@apollo/client';
-
-const GET_PROJECTS = gql`
-  query GetProjects {
-    allProjects {
-      id
-      name
-      description
-    }
-  }
-`;
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ManagerDashboard from "./pages/ManagerDashboard";
+import UserDashboard from "./pages/UserDashboard";
 
 function App() {
-  const { loading, error, data } = useQuery(GET_PROJECTS);
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
-
   return (
-    <div>
-      <h1>Projects</h1>
-      <ul>
-        {data.allProjects.map(project => (
-          <li key={project.id}>{project.name}: {project.description}</li>
-        ))}
-      </ul>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/manager-dashboard" element={<ManagerDashboard />} />
+        <Route path="/user-dashboard" element={<UserDashboard />} />
+      </Routes>
+    </Router>
   );
 }
 
