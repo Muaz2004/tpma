@@ -11,7 +11,7 @@ const Register = () => {
   const navigate = useNavigate();
 
   // Form state
-  const [name, setName] = useState("");
+  const [firstName, setfirstName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState(""); // optional
@@ -35,7 +35,7 @@ const Register = () => {
 
     try {
       const { data } = await registerMutation({
-        variables: { name, email, password },
+        variables: { firstName, email, password },
       });
 
       // Save user + token in AuthContext
@@ -60,8 +60,8 @@ const Register = () => {
           <label>Name:</label>
           <input
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={firstName}
+            onChange={(e) => setfirstName(e.target.value)}
             required
           />
         </div>

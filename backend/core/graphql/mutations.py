@@ -1,7 +1,7 @@
 import graphene
 from graphql import GraphQLError
 from core.models import Project, Task, CustomUser
-from core.graphql.types import ProjectType, TaskType
+from core.graphql.types import ProjectType, TaskType, UserType
 from datetime import date
 from core.graphql.auth import get_user_from_info
 from django.contrib.auth import authenticate
@@ -241,11 +241,11 @@ class DeleteTask(graphene.Mutation):
 # -----------------------------
 # LOGIN
 # -----------------------------
+
+
 class LoginMutation(graphene.Mutation):
     token = graphene.String()
-    user_id = graphene.ID()
-    username = graphene.String()
-    role = graphene.String()
+    user = graphene.Field(UserType)
 
     class Arguments:
         username = graphene.String(required=True)
@@ -256,59 +256,40 @@ class LoginMutation(graphene.Mutation):
         if not user:
             raise GraphQLError("Invalid credentials")
         token = generate_jwt(user)
-        return LoginMutation(
-            token=token,
-            user_id=user.id,
-            username=user.username,
-            role=user.role
-        )
+        return LoginMutation(token=token, user=user)
+
     
+
+
 # -----------------------------
 # REGISTER
-# -----------------------------class RegisterUserType(graphene.ObjectType):
-    id = graphene.ID()
-    name = graphene.String()
-    email = graphene.String()
-    role = graphene.String()
+# -----------------------------
 
 
 class RegisterMutation(graphene.Mutation):
     token = graphene.String()
-    user = graphene.Field(RegisterUserType)
+    user = graphene.Field(UserType)
 
     class Arguments:
-        name = graphene.String(required=True)
+        first_name = graphene.String(required=True)
         email = graphene.String(required=True)
         password = graphene.String(required=True)
 
-    def mutate(self, info, name, email, password):
-        from core.models import CustomUser
-
-        # Check if email already exists
+    def mutate(self, info, first_name, email, password):
         if CustomUser.objects.filter(email=email).exists():
             raise GraphQLError("Email already exists")
 
         user = CustomUser(
             username=email,
             email=email,
-            name=name,
+            first_name=first_name,
             role="USER"
         )
         user.set_password(password)
         user.save()
-
         token = generate_jwt(user)
-
-        return RegisterMutation(
-            token=token,
-            user=RegisterUserType(
-                id=user.id,
-                name=user.name,
-                email=user.email,
-                role=user.role
-            )
-        )
-
+        return RegisterMutation(token=token, user=user)
+    
 
 
 # -----------------------------

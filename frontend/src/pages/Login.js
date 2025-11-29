@@ -10,7 +10,7 @@ const Login = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -24,14 +24,14 @@ const Login = () => {
 
     try {
       const { data } = await loginMutation({
-        variables: { email, password },
+        variables: { username, password },
       });
 
       // Save user + token
       login(data.login.user, data.login.token);
 
       // Redirect based on role
-      if (data.login.user.role === "MANAGER") navigate("/manager-dashboard");
+      if (data.login.user.role === "Manager") navigate("/manager-dashboard");
       else navigate("/user-dashboard");
     } catch {
       setError("Invalid credentials");
@@ -45,11 +45,11 @@ const Login = () => {
       <h2>Login</h2>
       <form onSubmit={handleLogin}>
         <div>
-          <label>Email:</label>
+          <label>Username:</label>
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>

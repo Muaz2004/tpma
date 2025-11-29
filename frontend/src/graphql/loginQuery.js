@@ -1,14 +1,13 @@
 import { gql } from "@apollo/client";
 
-// GraphQL login mutation
+// GraphQL login mutation using username
 export const LOGIN_MUTATION = gql`
-  mutation Login($email: String!, $password: String!) {
-    login(email: $email, password: $password) {
+  mutation Login($username: String!, $password: String!) {
+    login(username: $username, password: $password) {
       token
       user {
         id
-        name
-        email
+        username
         role
       }
     }

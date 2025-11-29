@@ -4,7 +4,7 @@ from core.models import CustomUser, Project, Task
 class UserType(DjangoObjectType):
     class Meta:
         model = CustomUser
-        fields = ("id", "username", "email", "role")
+        fields = ("id", "username", "first_name", "email", "role")
 
 class ProjectType(DjangoObjectType):
     class Meta:
@@ -15,3 +15,4 @@ class TaskType(DjangoObjectType):
     class Meta:
         model = Task
         fields = ("id", "title", "description", "status", "assigned_to", "project", "due_date")
+

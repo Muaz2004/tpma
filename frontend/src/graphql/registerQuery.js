@@ -1,13 +1,12 @@
-import { gql } from "@apollo/client";
 
-// GraphQL register mutation
+import { gql } from "@apollo/client";
 export const REGISTER_MUTATION = gql`
-  mutation Register($name: String!, $email: String!, $password: String!) {
-    register(name: $name, email: $email, password: $password) {
+  mutation Register($firstName: String!, $email: String!, $password: String!) {
+    register(firstName: $firstName, email: $email, password: $password) {
       token
       user {
         id
-        name
+        firstName
         email
         role
       }
