@@ -265,13 +265,16 @@ class LoginMutation(graphene.Mutation):
     
 # -----------------------------
 # REGISTER
-# -----------------------------
-class RegisterMutation(graphene.Mutation):
-    token = graphene.String()
-    user_id = graphene.ID()
+# -----------------------------class RegisterUserType(graphene.ObjectType):
+    id = graphene.ID()
     name = graphene.String()
     email = graphene.String()
     role = graphene.String()
+
+
+class RegisterMutation(graphene.Mutation):
+    token = graphene.String()
+    user = graphene.Field(RegisterUserType)
 
     class Arguments:
         name = graphene.String(required=True)
@@ -279,32 +282,33 @@ class RegisterMutation(graphene.Mutation):
         password = graphene.String(required=True)
 
     def mutate(self, info, name, email, password):
-        from core.models import CustomUser  # make sure you import your user model
+        from core.models import CustomUser
 
         # Check if email already exists
         if CustomUser.objects.filter(email=email).exists():
             raise GraphQLError("Email already exists")
 
-        # Create new user
         user = CustomUser(
-            username=email,  # or any username logic
+            username=email,
             email=email,
             name=name,
-            role="USER"  # default role for new users
+            role="USER"
         )
         user.set_password(password)
         user.save()
 
-        # Generate JWT token
         token = generate_jwt(user)
 
         return RegisterMutation(
             token=token,
-            user_id=user.id,
-            name=user.name,
-            email=user.email,
-            role=user.role
+            user=RegisterUserType(
+                id=user.id,
+                name=user.name,
+                email=user.email,
+                role=user.role
+            )
         )
+
 
 
 # -----------------------------
