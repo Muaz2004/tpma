@@ -7,7 +7,7 @@ const UserDashboard = () => {
 
   return (
     <div style={{ padding: "2rem" }}>
-      <h1>Hi User, welcome!</h1>
+      <h1>Hi User, welcome! here is ur dash boared</h1>
       <p>{user && `Logged in as: ${user.name}`}</p>
     </div>
   );
