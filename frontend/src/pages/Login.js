@@ -33,9 +33,10 @@ const Login = () => {
 
 
       // Redirect based on role
-      if (data.login.user.role === "Manager") navigate("/manager-dashboard");
-
+      if (data.login.user.role.toLowerCase() === "manager") navigate("/manager-dashboard");
       else navigate("/user-dashboard");
+
+     
     } catch {
       setError("Invalid credentials");
     }
