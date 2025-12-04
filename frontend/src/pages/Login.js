@@ -29,9 +29,12 @@ const Login = () => {
 
       // Save user + token
       login(data.login.user, data.login.token);
+      console.log("USER ROLE:", data.login.user.role);
+
 
       // Redirect based on role
       if (data.login.user.role === "Manager") navigate("/manager-dashboard");
+      
       else navigate("/user-dashboard");
     } catch {
       setError("Invalid credentials");
