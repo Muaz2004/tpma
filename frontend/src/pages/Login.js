@@ -1,9 +1,7 @@
 import { useState, useContext } from "react";
 import { useMutation } from "@apollo/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-
-// Import GraphQL mutation
 import { LOGIN_MUTATION } from "../graphql/loginQuery";
 
 const Login = () => {
@@ -27,16 +25,12 @@ const Login = () => {
         variables: { username, password },
       });
 
-      // Save user + token
       login(data.login.user, data.login.token);
-      console.log("USER ROLE:", data.login.user.role);
 
-
-      // Redirect based on role
-      if (data.login.user.role.toLowerCase() === "manager") navigate("/manager-dashboard");
+      if (data.login.user.role.toLowerCase() === "manager")
+        navigate("/manager-dashboard");
       else navigate("/user-dashboard");
 
-     
     } catch {
       setError("Invalid credentials");
     }
@@ -45,35 +39,61 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>Username:</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white shadow-lg rounded-xl p-8 w-full sm:w-[400px]">
 
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+        <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">
+          Login
+        </h2>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
+        <form onSubmit={handleLogin} className="space-y-4">
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
-      </form>
+          <div>
+            <label className="block mb-1 text-gray-600">Username</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-1 text-gray-600">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 transition"
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+
+          {error && (
+            <p className="text-red-500 text-center">{error}</p>
+          )}
+        </form>
+
+        <p className="text-center text-gray-600 mt-4">
+          Don’t have an account?{" "}
+          <Link
+            to="/register"
+            className="text-blue-600 hover:underline font-medium"
+          >
+            Register here
+          </Link>
+        </p>
+
+      </div>
     </div>
   );
 };
