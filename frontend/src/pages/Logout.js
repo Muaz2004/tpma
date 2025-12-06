@@ -1,24 +1,18 @@
-
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import React, { useContext } from "react";
 
+const Logout = () => {
+  const { logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-const Logout=()=>{
+  const handleLogout = () => {
+    logout();           // remove user & token
+    navigate("/login"); // redirect
+  };
 
-     const {  logout } = useContext(AuthContext);
-      const navigate = useNavigate();
-    
-      const handleLogout = () => {
-        logout();          // remove user & token from context and localStorage
-        navigate("/login"); // redirect to login page
-      };
-    
-
- return (
-
-     <div>  style={{ padding: "2rem" }}
-        
+  return (
+    <div style={{ padding: "2rem" }}>
       <button
         onClick={handleLogout}
         style={{
@@ -33,6 +27,8 @@ const Logout=()=>{
       >
         Logout
       </button>
-     </div>
- );
-}; export default Logout
+    </div>
+  );
+};
+
+export default Logout;
