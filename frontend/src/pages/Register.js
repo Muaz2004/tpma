@@ -9,11 +9,12 @@ const Register = () => {
   const navigate = useNavigate();
 
   const [firstName, setfirstName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError]     = useState(null);
 
   const [registerMutation] = useMutation(REGISTER_MUTATION);
 
@@ -47,82 +48,87 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white shadow-lg rounded-xl p-8 w-full sm:w-[400px]">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-6 py-10">
 
-        <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">
-          Register
-        </h2>
+      {/* Header */}
+      <h1 className="text-3xl font-bold mb-10 tracking-wide">TPMA</h1>
 
-        <form onSubmit={handleRegister} className="space-y-4">
+      {/* Card */}
+      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg space-y-6">
+        
+        <h2 className="text-2xl font-semibold text-center">Create Account</h2>
+        <p className="text-center text-gray-500">Start managing tasks smarter</p>
 
-          <div>
-            <label className="block mb-1 text-gray-600">Name</label>
+        <form onSubmit={handleRegister} className="space-y-5">
+
+          <div className="flex flex-col">
+            <label className="text-gray-700 mb-1">Name</label>
             <input
               type="text"
               value={firstName}
+              className="p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
               onChange={(e) => setfirstName(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             />
           </div>
 
-          <div>
-            <label className="block mb-1 text-gray-600">Email</label>
+          <div className="flex flex-col">
+            <label className="text-gray-700 mb-1">Email</label>
             <input
               type="email"
               value={email}
+              className="p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             />
           </div>
 
-          <div>
-            <label className="block mb-1 text-gray-600">Password</label>
+          <div className="flex flex-col">
+            <label className="text-gray-700 mb-1">Password</label>
             <input
               type="password"
               value={password}
+              className="p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             />
           </div>
 
-          <div>
-            <label className="block mb-1 text-gray-600">Confirm Password</label>
+          <div className="flex flex-col">
+            <label className="text-gray-700 mb-1">Confirm Password</label>
             <input
               type="password"
               value={confirmPassword}
+              className="p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-green-600 hover:bg-green-700 text-white rounded-lg py-2 transition"
+            className="w-full py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition"
           >
             {loading ? "Registering..." : "Register"}
           </button>
 
-          {error && (
-            <p className="text-red-500 text-center">{error}</p>
-          )}
+          {error && <p className="text-center text-red-500">{error}</p>}
         </form>
 
-        <p className="text-center text-gray-600 mt-4">
-          Already have an account?{" "}
-          <Link
-            to="/login"
-            className="text-blue-600 hover:underline font-medium"
-          >
-            Login here
+        {/* Link */}
+        <p className="text-center text-gray-600">
+          Already have an account?
+          <Link to="/login" className="text-blue-600 font-medium ml-1">
+            Login
           </Link>
         </p>
-
       </div>
+
+      {/* Footer */}
+      <p className="text-xs text-gray-400 mt-10">
+        © 2025 TPMA. All rights reserved.
+      </p>
+
     </div>
   );
 };
