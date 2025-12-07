@@ -1,13 +1,17 @@
 import React from "react";
 
+const Topbar = () => {
+  return (
+    <div className="h-16 w-full flex items-center justify-between px-6 bg-transparent">
 
-const Topbar=()=>{
-    return(
-       <div className="bg-[#5BC0BE] h-16 flex items-center justify-between px-4">
-  <div className="text-white font-bold text-lg">TPMA</div>
-  <div className="w-8 h-8 bg-white rounded-full border"></div>
-</div>
+      <h1 className="text-2xl font-extrabold bg-gradient-to-r from-[#3A506B] to-[#5BC0BE] bg-clip-text text-transparent">
+        TPMA
+      </h1>
 
+      <div className="w-9 h-9 rounded-full border border-[#3A506B] opacity-70"></div>
 
-    );
-}; export default Topbar;
+    </div>
+  );
+};
+
+export default Topbar;
