@@ -25,7 +25,8 @@ const Login = () => {
         variables: { username, password },
       });
 
-      login(data.login.user, data.login.token);
+      login(data.login.user, data.login.token); 
+      console.log("USER ROLE:", data.login.user.role);
 
       if (data.login.user.role.toLowerCase() === "manager")
         navigate("/manager-dashboard");
@@ -39,61 +40,65 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white shadow-lg rounded-xl p-8 w-full sm:w-[400px]">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-6 py-10">
+      
+      {/* Header */}
+      <h1 className="text-3xl font-bold mb-10 tracking-wide">TPMA</h1>
 
-        <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">
-          Login
-        </h2>
+      {/* Card */}
+      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg space-y-6">
+        
+        <h2 className="text-2xl font-semibold text-center">Welcome Back</h2>
+        <p className="text-center text-gray-500">Login to continue your journey</p>
 
-        <form onSubmit={handleLogin} className="space-y-4">
-
-          <div>
-            <label className="block mb-1 text-gray-600">Username</label>
+        <form onSubmit={handleLogin} className="space-y-5">
+          
+          <div className="flex flex-col">
+            <label className="text-gray-700 mb-1">Username</label>
             <input
               type="text"
               value={username}
+              className="p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
               onChange={(e) => setUsername(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             />
           </div>
 
-          <div>
-            <label className="block mb-1 text-gray-600">Password</label>
+          <div className="flex flex-col">
+            <label className="text-gray-700 mb-1">Password</label>
             <input
               type="password"
               value={password}
+              className="p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 transition"
+            className="w-full py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
 
-          {error && (
-            <p className="text-red-500 text-center">{error}</p>
-          )}
+          {error && <p className="text-center text-red-500">{error}</p>}
         </form>
 
-        <p className="text-center text-gray-600 mt-4">
-          Don’t have an account?{" "}
-          <Link
-            to="/register"
-            className="text-blue-600 hover:underline font-medium"
-          >
+        {/* Link */}
+        <p className="text-center text-gray-600">
+          Don’t have an account?
+          <Link to="/register" className="text-blue-600 font-medium ml-1">
             Register here
           </Link>
         </p>
-
       </div>
+
+      {/* Footer */}
+      <p className="text-xs text-gray-400 mt-10">
+        © 2025 TPMA. All rights reserved.
+      </p>
     </div>
   );
 };
