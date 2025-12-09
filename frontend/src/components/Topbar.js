@@ -6,10 +6,13 @@ const Topbar = () => {
   const location = useLocation();
 
   const navLinks = [
-    { label: "Projects", path: "/projects" },
-    { label: "Tasks", path: "/tasks" },
-    { label: "Dashboard", path: "/user-dashboard" },
-  ];
+  { label: "Projects", path: "/projects" },
+  { label: "Tasks", path: "/tasks" },
+  { 
+    label: "Dashboard", 
+    path: user?.role.toLowerCase() === "manager" ? "/manager-dashboard" : "/user-dashboard" 
+  },
+];
 
   const isActive = (path) => location.pathname === path;
 
