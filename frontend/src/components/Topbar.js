@@ -20,7 +20,7 @@ const Topbar = () => {
 
           {/* Logo */}
           <Link
-            to="/"
+            to="/Dashboard"
             className="flex items-center gap-2 font-bold text-xl text-white hover:opacity-90 transition-opacity flex-shrink-0"
           >
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
@@ -29,7 +29,6 @@ const Topbar = () => {
             <span>TPMA</span>
           </Link>
 
-          {/* Nav container styled as elliptical bar */}
           {/* Nav container styled as elliptical bar */}
 <div className="flex-1 mx-6">
   <div className="relative rounded-full px-6 py-3 bg-white/20 backdrop-blur-sm flex justify-center">
@@ -77,7 +76,7 @@ const Topbar = () => {
                     className="block px-4 py-3 text-sm text-gray-700 hover:bg-emerald-50 transition-colors duration-150"
                     onClick={() => setIsProfileOpen(false)}
                   >
-                    Profile Settings
+                    Profile
                   </Link>
                   <Link
                     to="/logout"
