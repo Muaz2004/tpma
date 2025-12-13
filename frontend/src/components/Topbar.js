@@ -7,7 +7,7 @@ import { AuthContext } from "../context/AuthContext";
 const Topbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
-  const user=useContext(AuthContext);
+  const {user}=useContext(AuthContext);
 
   const navLinks = [
   { label: "Projects", path: "/projects" },
