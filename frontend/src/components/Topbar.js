@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import  { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 
 const Topbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
+  const user=useContext(AuthContext);
 
   const navLinks = [
   { label: "Projects", path: "/projects" },
