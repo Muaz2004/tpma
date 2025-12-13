@@ -12,9 +12,12 @@ const Topbar = () => {
   const navLinks = [
   { label: "Projects", path: "/projects" },
   { label: "Tasks", path: "/tasks" },
-  { 
-    label: "Dashboard", 
-    path: user?.role.toLowerCase() === "manager" ? "/manager-dashboard" : "/user-dashboard" 
+  {
+    label: "Dashboard",
+    path:
+      user?.role?.toLowerCase() === "manager"
+        ? "/manager-dashboard"
+        : "/user-dashboard",
   },
 ];
 
