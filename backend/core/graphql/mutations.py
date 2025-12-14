@@ -18,8 +18,9 @@ class CreateProject(graphene.Mutation):
         description = graphene.String(required=True)
         start_date = graphene.Date(required=True)
         end_date = graphene.Date(required=True)
+        status = graphene.String() 
 
-    def mutate(self, info, name, description, start_date, end_date):
+    def mutate(self, info, name, description, start_date, end_date,status):
         user = get_user_from_info(info)
         if user.role != "Manager":
             raise GraphQLError("Only managers can create projects")
@@ -30,6 +31,7 @@ class CreateProject(graphene.Mutation):
             start_date=start_date,
             end_date=end_date,
             creator=user,
+            status=status,
         )
 
         return CreateProject(project=project)
@@ -44,8 +46,9 @@ class UpdateProject(graphene.Mutation):
         project_id = graphene.ID(required=True)
         name = graphene.String(required=False)
         description = graphene.String(required=False)
+        status = graphene.String(required=False)
 
-    def mutate(self, info, project_id, name=None, description=None):
+    def mutate(self, info, project_id, name=None, description=None,status=None):
         user = get_user_from_info(info)
         try:
             project = Project.objects.get(id=project_id)
@@ -60,6 +63,14 @@ class UpdateProject(graphene.Mutation):
             project.name = name
         if description is not None:
             project.description = description
+        if status is not None:
+           allowed_status = ["not started", "in progress", "completed", "on hold", "cancelled"]
+           if status.lower() not in allowed_status:
+               raise GraphQLError("Invalid status value.")
+    # Store with proper capitalization if you want
+           proper_status = next(s.title() for s in allowed_status if s == status.lower())
+           project.status = proper_status
+
 
         project.save()
         return UpdateProject(project=project)
@@ -85,6 +96,42 @@ class DeleteProject(graphene.Mutation):
 
         project.delete()
         return DeleteProject(success=True)
+    
+
+
+# -----------------------------
+# UPDATE PROJECT STATUS
+# -----------------------------
+class UpdateProjectStatus(graphene.Mutation):
+    project = graphene.Field(ProjectType)
+
+    class Arguments:
+        project_id = graphene.ID(required=True)
+        status = graphene.String(required=True)
+
+    def mutate(self, info, project_id, status):
+        user = get_user_from_info(info)
+        try:
+            project = Project.objects.get(id=project_id)
+        except Project.DoesNotExist:
+            raise GraphQLError("Project not found")
+
+        # Only Managers or project creator can update status
+        if user.role != "Manager" and user != project.creator:
+            raise GraphQLError("You cannot update the status of this project.")
+
+        # Case-insensitive validation
+        allowed_status = ["not started", "in progress", "completed", "on hold", "cancelled"]
+        if status.lower() not in allowed_status:
+            raise GraphQLError("Invalid status value.")
+
+        # Store with proper capitalization
+        proper_status = next(s.title() for s in allowed_status if s == status.lower())
+        project.status = proper_status
+        project.save()
+
+        return UpdateProjectStatus(project=project)
+
 
 # -----------------------------
 # CREATE TASK
@@ -280,7 +327,7 @@ class RegisterMutation(graphene.Mutation):
             raise GraphQLError("Email already exists")
 
         user = CustomUser(
-            username=email,
+            username=email,#here it is i will change it later just i will make the usernam using first name just email is too much for some one who wants to login
             email=email,
             first_name=first_name,
             role="USER"
@@ -303,6 +350,7 @@ class Mutation(graphene.ObjectType):
     create_project = CreateProject.Field()
     update_project = UpdateProject.Field()
     delete_project = DeleteProject.Field()
+    UpdateProjectStatus=UpdateProjectStatus.Field()
 
     # Task Mutations
     create_task = CreateTask.Field()

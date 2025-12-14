@@ -9,7 +9,7 @@ class UserType(DjangoObjectType):
 class ProjectType(DjangoObjectType):
     class Meta:
         model = Project
-        fields = ("id", "name", "description", "start_date", "end_date", "creator", "tasks")
+        fields = ("id", "name", "description", "start_date", "end_date", "creator", "tasks", "status")
 
 class TaskType(DjangoObjectType):
     class Meta:

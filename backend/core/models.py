@@ -26,6 +26,15 @@ class Project(models.Model):
     end_date = models.DateField()
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='projects')
 
+    STATUS_CHOICES = [
+        ("Not Started", "Not Started"),
+        ("In Progress", "In Progress"),
+        ("Completed", "Completed"),
+        ("On Hold", "On Hold"),
+        ("Cancelled", "Cancelled"),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Not Started")
+
     def __str__(self):
         return self.name
 
