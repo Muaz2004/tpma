@@ -8,7 +8,8 @@ import Logout from "./pages/Logout";
 import Profile from "./pages/LogicalPages/Profile";
 import Projects from "./pages/LogicalPages/Projects";
 import Tasks from "./pages/LogicalPages/Tasks";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./context/ProtectedRoute";
+
 
 function App() {
   return (
