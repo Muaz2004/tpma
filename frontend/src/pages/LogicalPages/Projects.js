@@ -40,7 +40,7 @@ const Projects = () => {
         <h1 className="text-3xl font-bold text-emerald-500 mb-2 animate-fade-in">
           All Projects Overview
         </h1>
-        <p  className="text-white/80 mb-4">
+        <p className="text-emerald-600/80 mb-4">
           Explore your projects, track status, and manage tasks efficiently.
         </p>
       </div>
@@ -72,16 +72,15 @@ const Projects = () => {
             </div>
 
             {/* Description */}
-           <p className="text-white/80 mb-4">{project.description}</p>
+            <p className="text-emerald-600/80 mb-4">{project.description}</p>
 
             {/* Tasks */}
-
-            <div className="flex items-center gap-3 text-white/80">
-  <ClipboardList className="w-4 h-4" />
-  <span className="text-sm">
-    {project.tasks.length} Task{project.tasks.length !== 1 && "s"}
-  </span>
-</div>
+            <div  className="flex items-center gap-3 text-emerald-600/70">
+              <ClipboardList className="w-4 h-4" />
+              <span className="text-sm">
+                {project.tasks.length} Task{project.tasks.length !== 1 && "s"}
+              </span>
+            </div>
           </div>
         ))}
       </div>

@@ -174,6 +174,7 @@ class CreateTask(graphene.Mutation):
 # -----------------------------
 # UPDATE TASK STATUS
 # -----------------------------
+
 class UpdateTaskStatus(graphene.Mutation):
     task = graphene.Field(TaskType)
 
@@ -183,18 +184,30 @@ class UpdateTaskStatus(graphene.Mutation):
 
     def mutate(self, info, task_id, status):
         user = get_user_from_info(info)
+
         try:
             task = Task.objects.get(id=task_id)
         except Task.DoesNotExist:
             raise GraphQLError("Task not found")
 
+        # Permission check
         if task.assigned_to != user and user.role != "Manager":
             raise GraphQLError("You cannot update someone else's task")
+
+        # Correct ENUM validation based on your Task model
+        allowed_status = ["ToDo", "InProgress", "Done"]
+        if status not in allowed_status:
+            raise GraphQLError(
+                f"Invalid status. Allowed values: {allowed_status}"
+            )
 
         task.status = status
         task.save()
 
         return UpdateTaskStatus(task=task)
+
+
+
 
 # -----------------------------
 # UPDATE TASK
@@ -204,10 +217,10 @@ class UpdateTask(graphene.Mutation):
 
     class Arguments:
         task_id = graphene.ID(required=True)
-        title = graphene.String(required=False)
-        description = graphene.String(required=False)
-        status = graphene.String(required=False)
-        due_date = graphene.Date(required=False)
+        title = graphene.String()
+        description = graphene.String()
+        status = graphene.String()
+        due_date = graphene.Date()
 
     def mutate(self, info, task_id, title=None, description=None, status=None, due_date=None):
         user = get_user_from_info(info)
@@ -219,20 +232,20 @@ class UpdateTask(graphene.Mutation):
         if user != task.assigned_to and user.role != "Manager":
             raise GraphQLError("You cannot update a task that is not yours unless you are a Manager.")
 
-        if title is not None:
+        if title:
             task.title = title
-        if description is not None:
+        if description:
             task.description = description
-        if status is not None:
-            if status not in ["ToDo", "InProgress", "Done"]:
-                raise GraphQLError("Invalid status value.")
+        if status:
+            allowed_status = ["ToDo", "InProgress", "Done"]
+            if status not in allowed_status:
+                raise GraphQLError(f"Invalid status. Allowed values: {allowed_status}")
             task.status = status
-        if due_date is not None:
+        if due_date:
             task.due_date = due_date
 
         task.save()
         return UpdateTask(task=task)
-
 # -----------------------------
 # ASSIGN TASK TO USER
 # -----------------------------
@@ -327,7 +340,7 @@ class RegisterMutation(graphene.Mutation):
             raise GraphQLError("Email already exists")
 
         user = CustomUser(
-            username=email,#here it is i will change it later just i will make the usernam using first name just email is too much for some one who wants to login
+            username=email,#here it is i will change it later just i will make the usernam using first name just email is too much for some one who wants to login........
             email=email,
             first_name=first_name,
             role="USER"
