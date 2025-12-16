@@ -27,8 +27,9 @@ const GET_PROJECTS = gql`
 
 const Projects = () => {
   const { user } = useContext(AuthContext);
-  const { loading, error, data } = useQuery(GET_PROJECTS);
-
+  const { loading, error, data } = useQuery(GET_PROJECTS, {
+    fetchPolicy: "network-only", // ensures fresh data every time
+  });
 
   if (loading)
     return (
