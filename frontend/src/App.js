@@ -73,6 +73,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+         <Route
+          path="/projects/add"
+          element={
+            <ProtectedRoute  role="manager">
+              <Layout>
+                <AddProject />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );

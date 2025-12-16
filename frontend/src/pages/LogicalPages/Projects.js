@@ -44,6 +44,14 @@ const Projects = () => {
           Explore your projects, track status, and manage tasks efficiently.
         </p>
       </div>
+       <div>
+       {user?.role.toLowerCase() === "manager" && (
+        <Link to="/projects/add">
+          <button className="bg-[#5BC0BE] text-white px-4 py-2 rounded">
+            + Create Project
+          </button>
+        </Link>
+      )}  </div>
 
       {/* Projects Grid */}
       <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
