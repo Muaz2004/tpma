@@ -1,6 +1,12 @@
 import React from "react";
 import { gql, useQuery } from "@apollo/client";
 import { Folder, ClipboardList } from "lucide-react";
+import { AuthContext } from "../../context/AuthContext";
+import { Link } from "react-router-dom";
+import { useContext } from "react";
+
+
+
 
 const GET_PROJECTS = gql`
   query GetProjects {
@@ -20,7 +26,9 @@ const GET_PROJECTS = gql`
 `;
 
 const Projects = () => {
+  const { user } = useContext(AuthContext);
   const { loading, error, data } = useQuery(GET_PROJECTS);
+
 
   if (loading)
     return (

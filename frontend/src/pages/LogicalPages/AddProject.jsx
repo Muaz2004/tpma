@@ -8,7 +8,7 @@ const CREATE_PROJECT = gql`
     $description: String!
     $startDate: Date!
     $endDate: Date!
-    $status: String
+    $status: String 
   ) {
     createProject(
       name: $name
@@ -41,11 +41,15 @@ const AddProject = () => {
   const [createProject, { loading, error }] = useMutation(CREATE_PROJECT);
 
   // 🔒 Manager-only access (matches backend logic)
+  
+
   if (!user || user.role.toLowerCase() !== "manager") {
     return null;
   }
 
   const handleSubmit = async (e) => {
+    
+
     e.preventDefault();
 
     await createProject({
@@ -54,7 +58,7 @@ const AddProject = () => {
         description,
         startDate,
         endDate,
-        status,
+        status: status || "Not Started",
       },
     });
 
