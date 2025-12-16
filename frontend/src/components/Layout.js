@@ -3,7 +3,7 @@ import Topbar from "./Topbar";
 
 const Layout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 flex flex-col">
+    <div className="min-h-screen bg-green-50 flex flex-col">
 
       <Topbar />
 
@@ -11,7 +11,7 @@ const Layout = ({ children }) => {
         {children}
       </main>
 
-      <footer className="text-center py-6 text-gray-500 text-sm opacity-70">
+      <footer className="text-center py-6 text-green-700 text-sm opacity-70">
         © 2025 TPMA. All rights reserved.
       </footer>
 
