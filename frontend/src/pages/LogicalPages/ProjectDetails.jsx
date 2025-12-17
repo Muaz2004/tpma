@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, gql } from '@apollo/client';
-import { Folder, ClipboardList } from 'lucide-react'; // Ensure icons are imported
+import { Folder, ClipboardList } from 'lucide-react';
 
 // 1. Move query outside the component to prevent re-parsing on every render
 const GET_PROJECT = gql`
