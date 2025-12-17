@@ -1,12 +1,9 @@
 import React from "react";
 import { gql, useQuery } from "@apollo/client";
-import { Folder, ClipboardList } from "lucide-react";
+import { Folder, ClipboardList, Plus } from "lucide-react"; // added Plus icon
 import { AuthContext } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 import { useContext } from "react";
-
-
-
 
 const GET_PROJECTS = gql`
   query GetProjects {
@@ -28,7 +25,7 @@ const GET_PROJECTS = gql`
 const Projects = () => {
   const { user } = useContext(AuthContext);
   const { loading, error, data } = useQuery(GET_PROJECTS, {
-    fetchPolicy: "network-only", // ensures fresh data every time
+    fetchPolicy: "network-only",
   });
 
   if (loading)
@@ -38,12 +35,21 @@ const Projects = () => {
       </p>
     );
   if (error)
-    return <p className="text-center text-red-500 mt-20">Error: {error.message}</p>;
+    return (
+      <p className="text-center text-red-500 mt-20">Error: {error.message}</p>
+    );
   if (data.allProjects.length === 0)
-    return <p className="text-center text-gray-400 mt-20">No projects found</p>;
+    return (
+      <p className="text-center text-gray-400 mt-20">No projects found</p>
+    );
+
+  // Sort projects by startDate descending (newest first)
+  const sortedProjects = [...data.allProjects].sort(
+    (a, b) => new Date(b.startDate) - new Date(a.startDate)
+  );
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10">
+    <div className="max-w-7xl mx-auto px-6 py-10 relative">
       {/* Page Title */}
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold text-emerald-500 mb-2 animate-fade-in">
@@ -53,18 +59,25 @@ const Projects = () => {
           Explore your projects, track status, and manage tasks efficiently.
         </p>
       </div>
-       <div>
-       {user?.role.toLowerCase() === "manager" && (
-        <Link to="/projects/add">
-          <button className="bg-[#5BC0BE] text-white px-4 py-2 rounded">
-            + Create Project
-          </button>
-        </Link>
-      )}  </div>
+
+           {/* Create Project Button - modern icon style */}
+{user?.role.toLowerCase() === "manager" && (
+  <Link to="/projects/add">
+    <button
+      className="fixed bottom-6 right-6 z-50 bg-emerald-500 text-white px-5 py-4 rounded-full shadow-lg hover:bg-emerald-600 transition-transform hover:scale-110 flex items-center gap-2"
+      title="Create Project"
+    >
+      <Plus size={24} />
+      Add Project
+    </button>
+  </Link>
+)}
+
+
 
       {/* Projects Grid */}
       <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {data.allProjects.map((project) => (
+        {sortedProjects.map((project) => (
           <div
             key={project.id}
             className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
@@ -92,10 +105,11 @@ const Projects = () => {
             <p className="text-emerald-600/80 mb-4">{project.description}</p>
 
             {/* Tasks */}
-            <div  className="flex items-center gap-3 text-emerald-600/70">
+            <div className="flex items-center gap-3 text-emerald-600/70">
               <ClipboardList className="w-4 h-4" />
               <span className="text-sm">
-                {project.tasks.length} Task{project.tasks.length !== 1 && "s"}
+                {project.tasks.length} Task
+                {project.tasks.length !== 1 && "s"}
               </span>
             </div>
           </div>
