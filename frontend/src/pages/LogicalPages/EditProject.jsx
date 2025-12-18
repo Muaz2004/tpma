@@ -48,5 +48,7 @@ const EditProject=()=>{
   const navigate = useNavigate();
   const { id } = useParams();
 
+  return
+
 
 }; export default EditProject;
