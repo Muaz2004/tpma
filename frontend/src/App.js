@@ -9,7 +9,9 @@ import Profile from "./pages/LogicalPages/Profile";
 import Projects from "./pages/LogicalPages/Projects";
 import Tasks from "./pages/LogicalPages/Tasks";
 import AddProject from "./pages/LogicalPages/AddProject";
+import ProjectDetails from "./pages/LogicalPages/ProjectDetails";
 import ProtectedRoute from "./context/ProtectedRoute";
+import EditProject from "./pages/LogicalPages/EditProject";
 
 
 function App() {
@@ -74,7 +76,17 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+         <Route
+          path="/projects/:id"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <ProjectDetails />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+   
          <Route
           path="/projects/add"
           element={
@@ -85,6 +97,19 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+
+          <Route
+          path="/projects/:id/edit"
+          element={
+            <ProtectedRoute role="manager">
+              <Layout>
+                <EditProject />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
     </Router>
   );

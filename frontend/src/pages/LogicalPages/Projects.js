@@ -80,7 +80,7 @@ const Projects = () => {
 
       <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {sortedProjects.map((project) => (
-          <Link to={`/details/${project.id}`} key={item.id} className="card-link">
+          <Link to={`/projects/${project.id}`} key={project.id} className="card-link">
           <div
             key={project.id}
             className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
