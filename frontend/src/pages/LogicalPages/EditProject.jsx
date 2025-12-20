@@ -2,28 +2,28 @@ import React, { useState, useContext, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@apollo/client";
 import { AuthContext } from "../../context/AuthContext";
-import { Folder } from "lucide-react";
-import {GET_PROJECT} from '../../graphql/LogicalQueries';
-import {UPDATE_PROJECT} from '../../graphql/LogicalQueries';
+import { GET_PROJECT, UPDATE_PROJECT } from "../../graphql/LogicalQueries";
 
-
-
-
-const EditProject=()=>{
+const EditProject = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const { id } = useParams();
-  
-  const { loading, error, data } = useQuery(GET_PROJECT, {variables: { id }});
-  const [updateProject] = useMutation(UPDATE_PROJECT);
+
+  const { loading, error: queryError, data } = useQuery(GET_PROJECT, {
+    variables: { id },
+  });
+  const [updateProject, { loading: mutationLoading, error: mutationError }] =
+    useMutation(UPDATE_PROJECT);
 
   const [formState, setFormState] = useState({
     name: "",
     description: "",
     startDate: "",
     endDate: "",
-    status: ""
+    status: "",
   });
+  const [success, setSuccess] = useState(false);
+
   useEffect(() => {
     if (data && data.project) {
       setFormState({
@@ -31,131 +31,156 @@ const EditProject=()=>{
         description: data.project.description,
         startDate: data.project.startDate,
         endDate: data.project.endDate,
-        status: data.project.status
+        status: data.project.status,
       });
-    } }, [data]);
+    }
+  }, [data]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormState({
       ...formState,
-      [name]: value
+      [name]: value,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await updateProject({ variables: { id, ...formState } 
+      await updateProject({
+        variables: { id, ...formState },
       });
-      navigate(`/projects/${id}`);
+      setSuccess(true);
+      setTimeout(() => {
+        navigate(`/projects/${id}`);
+      }, 1500);
     } catch (err) {
       console.error("Error updating project:", err);
-    } };
+    }
+  };
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error loading project data.</p>;
-  if (user.role.toLowwerCase() === "manager") {
-    return <p>You cant edit u are not manager.</p>;
+  if (queryError) return <p>Error loading project data.</p>;
+  if (!user || user.role.toLowerCase() !== "manager") {
+    return <p>You can’t edit – you are not a manager.</p>;
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-10">
-      <div className="mb-8 text-center animate-fade-slide">
-        <h1 className="text-3xl font-semibold text-emerald-600 mb-2">
+    <div className="max-w-xl mx-auto px-6 py-10">
+      <div className="mb-10 text-center">
+        <h1 className="text-2xl font-semibold text-green-900 mb-2">
           Edit Project
         </h1>
-        <p className="text-emerald-600/70 max-w-xl mx-auto">
+        <p className="text-green-700 text-sm">
           Modify the details of your project below and save the changes.
         </p>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-emerald-700 font-medium mb-2">
 
-            Project Name
-          </label>
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 bg-green-50/60 backdrop-blur rounded-3xl px-6 py-8"
+      >
+        {/* Success message */}
+        {success && (
+          <div className="text-sm text-green-700 bg-green-100/60 rounded-xl px-4 py-2 text-center">
+            Project updated successfully. Redirecting…
+          </div>
+        )}
+
+        {/* Mutation error */}
+        {mutationError && (
+          <div className="text-sm text-red-700 bg-red-100/60 rounded-xl px-4 py-2 text-center">
+            {mutationError.message}
+          </div>
+        )}
+
+        {/* Project Name */}
+        <div>
+          <label className="block text-sm text-green-800 mb-1">Project Name</label>
           <input
             type="text"
             name="name"
             value={formState.name}
             onChange={handleChange}
-            className="w-full border border-emerald-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
+            className="w-full bg-white/70 px-4 py-3 rounded-xl text-sm
+                       focus:outline-none focus:ring-2 focus:ring-green-400"
           />
         </div>
+
+        {/* Description */}
         <div>
-          <label className="block text-emerald-700 font-medium mb-2">
-            Description
-          </label>
+          <label className="block text-sm text-green-800 mb-1">Description</label>
           <textarea
             name="description"
             value={formState.description}
             onChange={handleChange}
-            className="w-full border border-emerald-300 rounded-lg px-4 py-2 h-32 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            rows={3}
             required
-
+            className="w-full bg-white/70 px-4 py-3 rounded-xl text-sm
+                       focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"
           />
         </div>
+
+        {/* Dates */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-emerald-700 font-medium mb-2">
-              Start Date
-            </label>
+            <label className="block text-sm text-green-800 mb-1">Start Date</label>
             <input
               type="date"
               name="startDate"
               value={formState.startDate}
               onChange={handleChange}
-              className="w-full border border-emerald-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               required
+              className="w-full bg-white/70 px-4 py-3 rounded-xl text-sm
+                         focus:outline-none focus:ring-2 focus:ring-green-400"
             />
           </div>
           <div>
-            <label className="block text-emerald-700 font-medium mb-2">
-              End Date
-            </label>
+            <label className="block text-sm text-green-800 mb-1">End Date</label>
             <input
               type="date"
               name="endDate"
               value={formState.endDate}
               onChange={handleChange}
-              className="w-full border border-emerald-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               required
+              className="w-full bg-white/70 px-4 py-3 rounded-xl text-sm
+                         focus:outline-none focus:ring-2 focus:ring-green-400"
             />
           </div>
         </div>
+
+        {/* Status */}
         <div>
-          <label className="block text-emerald-700 font-medium mb-2">
-            Status
-          </label>
+          <label className="block text-sm text-green-800 mb-1">Status</label>
           <select
             name="status"
             value={formState.status}
             onChange={handleChange}
-            className="w-full border border-emerald-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             required
+            className="w-full bg-white/70 px-4 py-3 rounded-xl text-sm
+                       focus:outline-none focus:ring-2 focus:ring-green-400"
           >
             <option value="Not Started">Not Started</option>
             <option value="In Progress">In Progress</option>
             <option value="Completed">Completed</option>
           </select>
         </div>
-        <div className="text-center">
+
+        {/* Submit button */}
+        <div className="pt-2">
           <button
             type="submit"
-            className="bg-emerald-500 text-white px-6 py-2 rounded-lg hover:bg-emerald-600 transition-all shadow hover:shadow-lg"
+            disabled={mutationLoading}
+            className="w-full py-3 rounded-xl bg-green-500 text-white text-sm
+                       hover:bg-green-600 transition active:scale-[0.98]"
           >
-            Save Changes
+            {mutationLoading ? "Saving…" : "Save Changes"}
           </button>
         </div>
       </form>
     </div>
   );
+};
 
-          
-
-  
-
-
-}; export default EditProject;
+export default EditProject;
