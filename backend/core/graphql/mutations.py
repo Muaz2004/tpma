@@ -39,6 +39,7 @@ class CreateProject(graphene.Mutation):
 # -----------------------------
 # UPDATE PROJECT
 # -----------------------------
+
 class UpdateProject(graphene.Mutation):
     project = graphene.Field(ProjectType)
 
@@ -47,34 +48,37 @@ class UpdateProject(graphene.Mutation):
         name = graphene.String(required=False)
         description = graphene.String(required=False)
         status = graphene.String(required=False)
+        start_date = graphene.Date(required=True)
+        end_date = graphene.Date(required=True)
 
-    def mutate(self, info, project_id, name=None, description=None,status=None):
+    def mutate(self, info, project_id, name=None, description=None, status=None, start_date=None, end_date=None):
         user = get_user_from_info(info)
         try:
             project = Project.objects.get(id=project_id)
         except Project.DoesNotExist:
             raise GraphQLError("Project not found")
 
-        # Permission check: must be Manager or Creator
-        if user.role != "Manager" and user != project.creator:
+        # Permission check
+        if user.role != "Manager" or user != project.creator:
             raise GraphQLError("Only the project creator or a Manager can update the project.")
-        
+
+        # Update fields if provided
         if name is not None:
             project.name = name
         if description is not None:
             project.description = description
         if status is not None:
-           allowed_status = ["not started", "in progress", "completed", "on hold", "cancelled"]
-           if status.lower() not in allowed_status:
-               raise GraphQLError("Invalid status value.")
-    # Store with proper capitalization if you want
-           proper_status = next(s.title() for s in allowed_status if s == status.lower())
-           project.status = proper_status
-
+            allowed_status = ["Not Started", "In Progress", "Completed", "On Hold", "Cancelled"]
+            if status.title() not in allowed_status:
+                raise GraphQLError("Invalid status value.")
+            project.status = status.title()
+        if start_date is not None:
+            project.startDate = start_date
+        if end_date is not None:
+            project.endDate = end_date
 
         project.save()
         return UpdateProject(project=project)
-
 # -----------------------------
 # DELETE PROJECT
 # -----------------------------
@@ -92,7 +96,7 @@ class DeleteProject(graphene.Mutation):
             raise GraphQLError("Project not found")
 
         if user.role != "Manager" and user != project.creator:
-            raise GraphQLError("Only the project creator or a Manager can delete this project.")
+            raise GraphQLError("Only the project creator and a Manager can delete this project.")
 
         project.delete()
         return DeleteProject(success=True)
