@@ -3,8 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@apollo/client";
 import { AuthContext } from "../../context/AuthContext";
 import { Folder } from "lucide-react";
-import {GET_PROJECT} from "../graphql/LogicalQueries";
-import {UPDATE_PROJECT} from "../graphql/LogicalQueries";
+import {GET_PROJECT} from '../../graphql/LogicalQueries';
+import {UPDATE_PROJECT} from '../../graphql/LogicalQueries';
 
 
 

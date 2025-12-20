@@ -5,6 +5,8 @@ import { Folder, ClipboardList, Calendar } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { GET_PROJECT } from "../../graphql/LogicalQueries";
+import { useMutation } from "@apollo/client";
+import { DELETE_PROJECT } from "../../graphql/LogicalQueries";
 
 
 
@@ -15,6 +17,24 @@ const ProjectDetails = () => {
   const { loading, error, data } = useQuery(GET_PROJECT, {
     variables: { id },
   });
+ 
+  // Delete project mutation
+  const [deleteProject, { deleteLoading, deleteError }] = useMutation(DELETE_PROJECT);
+
+  const handleDelete = async () => {
+    await deleteProject({
+  variables: { projectId: id }
+});
+
+navigate("/projects", {
+  state: { deleteSuccess: "Project deleted successfully" }
+});
+
+};
+
+   if (deleteLoading) return <p>Loading project...</p>;
+if (deleteError) return <p>Error loading project.</p>;
+
 
   if (loading)
     return (
@@ -128,10 +148,24 @@ const ProjectDetails = () => {
       </div>
 
     </div>
-     if (user.role.toLowwerCase() === "manager") {
-    <div>
-    <button onClick={navigate(`/projects/${id}/edit`)}>edit project</button>
-    </div> }
+      {/* Action Buttons */}
+   {user.role.toLowerCase() === "manager" && (
+  <div>
+    <button onClick={() => navigate(`/projects/${id}/edit`)}>
+      Edit Project
+    </button>
+  </div>
+)}
+
+  <div>
+  {user.role.toLowerCase() === "manager" && (
+    <button onClick={handleDelete}>
+      Delete Project
+    </button>
+  )}
+</div>
+
+
   </div>
 );
 
