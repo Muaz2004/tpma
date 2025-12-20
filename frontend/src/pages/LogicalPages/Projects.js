@@ -1,26 +1,11 @@
 import React from "react";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { Folder, ClipboardList, Plus } from "lucide-react"; // added Plus icon
 import { AuthContext } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 import { useContext } from "react";
+import { GET_PROJECTS } from "../../graphql/LogicalQueries";
 
-const GET_PROJECTS = gql`
-  query GetProjects {
-    allProjects {
-      id
-      name
-      description
-      startDate
-      endDate
-      status
-      tasks {
-        id
-        title
-      }
-    }
-  }
-`;
 
 const Projects = () => {
   const { user } = useContext(AuthContext);
@@ -112,7 +97,7 @@ const Projects = () => {
               <ClipboardList className="w-4 h-4" />
               <span className="text-sm">
                 {project.tasks.length} Task
-                {project.tasks.length !== 1 && "s"}
+                {project.tasks.length !== 1 && "s"}     /*  want a Description */
               </span>
             </div>
           </div>  </Link>

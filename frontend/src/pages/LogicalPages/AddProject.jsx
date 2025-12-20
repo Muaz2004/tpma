@@ -1,29 +1,9 @@
 import React, { useState, useContext } from "react";
-import { gql, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { CREATE_PROJECT } from "../../graphql/LogicalQueries";
 
-const CREATE_PROJECT = gql`
-  mutation CreateProject(
-    $name: String!
-    $description: String!
-    $startDate: Date!
-    $endDate: Date!
-    $status: String
-  ) {
-    createProject(
-      name: $name
-      description: $description
-      startDate: $startDate
-      endDate: $endDate
-      status: $status
-    ) {
-      project {
-        id
-      }
-    }
-  }
-`;
 
 const AddProject = () => {
   const { user } = useContext(AuthContext);

@@ -1,29 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useParams } from "react-router-dom";
-import { useQuery, gql } from "@apollo/client";
+import { useQuery} from "@apollo/client";
 import { Folder, ClipboardList, Calendar } from "lucide-react";
+import { AuthContext } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { GET_PROJECT } from "../../graphql/LogicalQueries";
 
-const GET_PROJECT = gql`
-  query GetProject($id: ID!) {
-    project(id: $id) {
-      id
-      name
-      description
-      startDate
-      endDate
-      status
-      tasks {
-        id
-        title
-        status
-      }
-    }
-  }
-`;
+
 
 const ProjectDetails = () => {
   const { id } = useParams();
-
+  const navigate=useNavigate()
+  const {user} =useContext(AuthContext)
   const { loading, error, data } = useQuery(GET_PROJECT, {
     variables: { id },
   });
@@ -138,7 +126,12 @@ const ProjectDetails = () => {
           </ul>
         )}
       </div>
+
     </div>
+     if (user.role.toLowwerCase() === "manager") {
+    <div>
+    <button onClick={navigate(`/projects/${id}/edit`)}>edit project</button>
+    </div> }
   </div>
 );
 
