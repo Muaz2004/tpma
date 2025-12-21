@@ -3,15 +3,15 @@ import { gql } from "@apollo/client";
 
 export const UPDATE_PROJECT = gql`
   mutation UpdateProject(
-    $id: ID!
-    $name: String!
-    $description: String!
+    $projectId: ID!
+    $name: String
+    $description: String
     $startDate: Date!
     $endDate: Date!
-    $status: String!
+    $status: String
   ) {
     updateProject(
-      id: $id
+      projectId: $projectId
       name: $name
       description: $description
       startDate: $startDate

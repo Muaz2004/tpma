@@ -39,7 +39,6 @@ class CreateProject(graphene.Mutation):
 # -----------------------------
 # UPDATE PROJECT
 # -----------------------------
-
 class UpdateProject(graphene.Mutation):
     project = graphene.Field(ProjectType)
 
@@ -51,34 +50,55 @@ class UpdateProject(graphene.Mutation):
         start_date = graphene.Date(required=True)
         end_date = graphene.Date(required=True)
 
-    def mutate(self, info, project_id, name=None, description=None, status=None, start_date=None, end_date=None):
+    def mutate(
+        self,
+        info,
+        project_id,
+        name=None,
+        description=None,
+        status=None,
+        start_date=None,
+        end_date=None
+    ):
         user = get_user_from_info(info)
+
         try:
             project = Project.objects.get(id=project_id)
         except Project.DoesNotExist:
             raise GraphQLError("Project not found")
 
         # Permission check
-        if user.role != "Manager" or user != project.creator:
-            raise GraphQLError("Only the project creator or a Manager can update the project.")
+        if user.role != "Manager" and user != project.creator:
+            raise GraphQLError("Not authorized to update this project")
 
-        # Update fields if provided
+        # Update fields
         if name is not None:
             project.name = name
+
         if description is not None:
             project.description = description
+
         if status is not None:
-            allowed_status = ["Not Started", "In Progress", "Completed", "On Hold", "Cancelled"]
+            allowed_status = [
+                "Not Started",
+                "In Progress",
+                "Completed",
+                "On Hold",
+                "Cancelled",
+            ]
             if status.title() not in allowed_status:
                 raise GraphQLError("Invalid status value.")
             project.status = status.title()
+
         if start_date is not None:
-            project.startDate = start_date
+            project.start_date = start_date
+
         if end_date is not None:
-            project.endDate = end_date
+            project.end_date = end_date
 
         project.save()
         return UpdateProject(project=project)
+
 # -----------------------------
 # DELETE PROJECT
 # -----------------------------

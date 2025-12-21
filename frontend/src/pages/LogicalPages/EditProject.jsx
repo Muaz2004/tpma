@@ -7,48 +7,62 @@ import { GET_PROJECT, UPDATE_PROJECT } from "../../graphql/LogicalQueries";
 const EditProject = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams(); // project id from URL
 
   const { loading, error: queryError, data } = useQuery(GET_PROJECT, {
     variables: { id },
   });
+
   const [updateProject, { loading: mutationLoading, error: mutationError }] =
     useMutation(UPDATE_PROJECT);
+
+  const allowedStatuses = [
+    "Not Started",
+    "In Progress",
+    "Completed",
+    "On Hold",
+    "Cancelled",
+  ];
 
   const [formState, setFormState] = useState({
     name: "",
     description: "",
     startDate: "",
     endDate: "",
-    status: "",
+    status: "Not Started", // default to valid status
   });
+
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    if (data && data.project) {
+    if (data?.project) {
       setFormState({
-        name: data.project.name,
-        description: data.project.description,
-        startDate: data.project.startDate,
-        endDate: data.project.endDate,
-        status: data.project.status,
+        name: data.project.name || "",
+        description: data.project.description || "",
+        startDate: data.project.startDate || "",
+        endDate: data.project.endDate || "",
+        status:
+          allowedStatuses.includes(data.project.status)
+            ? data.project.status
+            : "Not Started", // fallback if backend has unexpected value
       });
     }
   }, [data]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormState({
-      ...formState,
-      [name]: value,
-    });
+    setFormState((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       await updateProject({
-        variables: { id, ...formState },
+        variables: {
+          projectId: id, // must match your backend argument
+          ...formState,
+        },
       });
       setSuccess(true);
       setTimeout(() => {
@@ -61,9 +75,8 @@ const EditProject = () => {
 
   if (loading) return <p>Loading...</p>;
   if (queryError) return <p>Error loading project data.</p>;
-  if (!user || user.role.toLowerCase() !== "manager") {
+  if (!user || user.role.toLowerCase() !== "manager")
     return <p>You can’t edit – you are not a manager.</p>;
-  }
 
   return (
     <div className="max-w-xl mx-auto px-6 py-10">
@@ -80,35 +93,32 @@ const EditProject = () => {
         onSubmit={handleSubmit}
         className="space-y-6 bg-green-50/60 backdrop-blur rounded-3xl px-6 py-8"
       >
-        {/* Success message */}
         {success && (
           <div className="text-sm text-green-700 bg-green-100/60 rounded-xl px-4 py-2 text-center">
             Project updated successfully. Redirecting…
           </div>
         )}
 
-        {/* Mutation error */}
         {mutationError && (
           <div className="text-sm text-red-700 bg-red-100/60 rounded-xl px-4 py-2 text-center">
             {mutationError.message}
           </div>
         )}
 
-        {/* Project Name */}
         <div>
-          <label className="block text-sm text-green-800 mb-1">Project Name</label>
+          <label className="block text-sm text-green-800 mb-1">
+            Project Name
+          </label>
           <input
             type="text"
             name="name"
             value={formState.name}
             onChange={handleChange}
             required
-            className="w-full bg-white/70 px-4 py-3 rounded-xl text-sm
-                       focus:outline-none focus:ring-2 focus:ring-green-400"
+            className="w-full bg-white/70 px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
           />
         </div>
 
-        {/* Description */}
         <div>
           <label className="block text-sm text-green-800 mb-1">Description</label>
           <textarea
@@ -117,12 +127,10 @@ const EditProject = () => {
             onChange={handleChange}
             rows={3}
             required
-            className="w-full bg-white/70 px-4 py-3 rounded-xl text-sm
-                       focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"
+            className="w-full bg-white/70 px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"
           />
         </div>
 
-        {/* Dates */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm text-green-800 mb-1">Start Date</label>
@@ -132,10 +140,10 @@ const EditProject = () => {
               value={formState.startDate}
               onChange={handleChange}
               required
-              className="w-full bg-white/70 px-4 py-3 rounded-xl text-sm
-                         focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="w-full bg-white/70 px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
             />
           </div>
+
           <div>
             <label className="block text-sm text-green-800 mb-1">End Date</label>
             <input
@@ -144,13 +152,11 @@ const EditProject = () => {
               value={formState.endDate}
               onChange={handleChange}
               required
-              className="w-full bg-white/70 px-4 py-3 rounded-xl text-sm
-                         focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="w-full bg-white/70 px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
             />
           </div>
         </div>
 
-        {/* Status */}
         <div>
           <label className="block text-sm text-green-800 mb-1">Status</label>
           <select
@@ -158,22 +164,21 @@ const EditProject = () => {
             value={formState.status}
             onChange={handleChange}
             required
-            className="w-full bg-white/70 px-4 py-3 rounded-xl text-sm
-                       focus:outline-none focus:ring-2 focus:ring-green-400"
+            className="w-full bg-white/70 px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
           >
-            <option value="Not Started">Not Started</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
+            {allowedStatuses.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
           </select>
         </div>
 
-        {/* Submit button */}
         <div className="pt-2">
           <button
             type="submit"
             disabled={mutationLoading}
-            className="w-full py-3 rounded-xl bg-green-500 text-white text-sm
-                       hover:bg-green-600 transition active:scale-[0.98]"
+            className="w-full py-3 rounded-xl bg-green-500 text-white text-sm hover:bg-green-600 transition active:scale-[0.98]"
           >
             {mutationLoading ? "Saving…" : "Save Changes"}
           </button>
