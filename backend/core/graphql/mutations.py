@@ -68,7 +68,7 @@ class UpdateProject(graphene.Mutation):
             raise GraphQLError("Project not found")
 
         # Permission check
-        if user.role != "Manager" and user != project.creator:
+        if user.role != "Manager" or user != project.creator:
             raise GraphQLError("Not authorized to update this project")
 
         # Update fields
@@ -115,8 +115,8 @@ class DeleteProject(graphene.Mutation):
         except Project.DoesNotExist:
             raise GraphQLError("Project not found")
 
-        if user.role != "Manager" and user != project.creator:
-            raise GraphQLError("Only the project creator and a Manager can delete this project.")
+        if user.role != "Manager" or user != project.creator:
+            raise GraphQLError("Only the project creator or a Manager can delete this project.")
 
         project.delete()
         return DeleteProject(success=True)
@@ -160,6 +160,7 @@ class UpdateProjectStatus(graphene.Mutation):
 # -----------------------------
 # CREATE TASK
 # -----------------------------
+
 class CreateTask(graphene.Mutation):
     task = graphene.Field(TaskType)
 
@@ -172,19 +173,27 @@ class CreateTask(graphene.Mutation):
 
     def mutate(self, info, title, description, assigned_to, project, due_date):
         user = get_user_from_info(info)
+
+        # Only managers can create tasks
         if user.role != "Manager":
             raise GraphQLError("Only managers can create tasks")
 
+        # Find the assigned user
         try:
             assigned_user = CustomUser.objects.get(id=assigned_to)
         except CustomUser.DoesNotExist:
             raise GraphQLError("Assigned user not found")
 
+        # Find the project and check if the current user is the creator
         try:
             project_obj = Project.objects.get(id=project)
         except Project.DoesNotExist:
             raise GraphQLError("Project not found")
 
+        if project_obj.creator != user:
+            raise GraphQLError("You can only assign tasks to projects you created")
+
+        # Create the task
         task = Task.objects.create(
             title=title,
             description=description,
@@ -194,6 +203,7 @@ class CreateTask(graphene.Mutation):
         )
 
         return CreateTask(task=task)
+
 
 # -----------------------------
 # UPDATE TASK STATUS
@@ -217,6 +227,9 @@ class UpdateTaskStatus(graphene.Mutation):
         # Permission check
         if task.assigned_to != user and user.role != "Manager":
             raise GraphQLError("You cannot update someone else's task")
+        if user != task.assigned_to and user != task.project.creator:
+            raise GraphQLError("You cannot update this task unless you are the assignee or project creator.")
+
 
         # Correct ENUM validation based on your Task model
         allowed_status = ["ToDo", "InProgress", "Done"]
@@ -255,6 +268,9 @@ class UpdateTask(graphene.Mutation):
 
         if user != task.assigned_to and user.role != "Manager":
             raise GraphQLError("You cannot update a task that is not yours unless you are a Manager.")
+        if user != task.assigned_to and user != task.project.creator:
+           raise GraphQLError("You cannot update this task unless you are the assignee or project creator.")
+
 
         if title:
             task.title = title
@@ -284,6 +300,9 @@ class AssignTask(graphene.Mutation):
         user = get_user_from_info(info)
         if user.role != "Manager":
             raise GraphQLError("Only managers can assign tasks")
+        if user != task.project.creator:
+            raise GraphQLError("Only the project creator can assign tasks in this project.")
+
 
         try:
             task = Task.objects.get(id=task_id)
@@ -318,6 +337,9 @@ class DeleteTask(graphene.Mutation):
 
         if user.role != "Manager":
             raise GraphQLError("Only a Manager can delete tasks.")
+        if user != task.project.creator:
+            raise GraphQLError("Only the project creator can delete tasks in this project.")
+
 
         task.delete()
         return DeleteTask(success=True)

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { GET_PROJECT } from "../../graphql/LogicalQueries";
 import { useMutation } from "@apollo/client";
 import { DELETE_PROJECT } from "../../graphql/LogicalQueries";
+import { Pencil, Trash2 } from "lucide-react";
 
 
 
@@ -151,20 +152,27 @@ if (deleteError) return <p>Error loading project.</p>;
     </div>
       {/* Action Buttons */}
    {user.role.toLowerCase() === "manager" && (
-  <div>
-    <button onClick={() => navigate(`/projects/${id}/edit`)}>
-      Edit Project
+  <div className="flex gap-4 mt-6">
+    {/* Edit Button */}
+    <button
+      onClick={() => navigate(`/projects/${id}/edit`)}
+      className="flex items-center gap-2 px-4 py-2 bg-emerald-500 text-white rounded-xl shadow hover:bg-emerald-600 transition duration-200 font-medium"
+    >
+      <Pencil className="w-4 h-4" />
+      Edit 
+    </button>
+
+    {/* Delete Button */}
+    <button
+      onClick={handleDelete}
+      className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-xl shadow hover:bg-red-600 transition duration-200 font-medium"
+    >
+      <Trash2 className="w-4 h-4" />
+      Delete 
     </button>
   </div>
 )}
-
-  <div>
-  {user.role.toLowerCase() === "manager" && (
-    <button onClick={handleDelete}>
-      Delete Project
-    </button>
-  )}
-</div>
+  
 
 
   </div>
