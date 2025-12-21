@@ -50,6 +50,7 @@ const Projects = () => {
       </div>
 
            {/* Create Project Button - modern icon style */}
+           
 {user?.role.toLowerCase() === "manager" && (
   <Link to="/projects/add">
     <button

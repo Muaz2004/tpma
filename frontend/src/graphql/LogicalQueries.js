@@ -92,3 +92,54 @@ export const DELETE_PROJECT = gql`
     }
   }
 `
+
+
+
+
+export const CREATE_TASK = gql`
+  mutation CreateTask(
+    $title: String!
+    $description: String!
+    $assigned_to: ID!
+    $project: ID!
+    $due_date: Date!
+  ) {
+    createTask(
+      title: $title
+      description: $description
+      assignedTo: $assigned_to
+      project: $project
+      dueDate: $due_date
+    ) {
+      task {
+        id
+        title
+        description
+        status
+        dueDate
+        assignedTo {
+          id
+          firstName
+          email
+        }
+        project {
+          id
+          name
+        }
+      }
+    }
+  }
+`;
+
+
+
+export const GET_USERS = gql`
+  query GetUsers {
+    users {
+      id
+      username
+      role
+    }
+  }
+`;
+

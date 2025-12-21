@@ -1,6 +1,10 @@
 import React from "react";
 import { gql, useQuery } from "@apollo/client";
 import { ClipboardList, Calendar, Users } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
+
 
 const GET_TASKS = gql`
   query GetTasks {
@@ -24,6 +28,7 @@ const GET_TASKS = gql`
 
 const Tasks = () => {
   const { loading, error, data } = useQuery(GET_TASKS);
+  const { user } = useContext(AuthContext);
 
   if (loading)
     return (
@@ -52,6 +57,20 @@ const Tasks = () => {
       <p className="text-center text-emerald-600 font-medium mb-8 text-lg md:text-xl">
         Here are all your tasks — track progress and stay on top of your work.
       </p>
+
+       
+       {user?.role.toLowerCase() === "manager" && (
+         <Link to="/tasks/add">
+           <button
+             className="fixed bottom-6 right-6 z-50 bg-emerald-500 text-white px-5 py-4 rounded-full shadow-lg hover:bg-emerald-600 transition-transform hover:scale-110 flex items-center gap-2"
+             title="Create Project"
+           >
+             <Plus size={24} />
+             Add Task
+           </button>
+         </Link>
+       )}
+       
 
       <div className="tasks-grid grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {data.allTasks.map((task) => {

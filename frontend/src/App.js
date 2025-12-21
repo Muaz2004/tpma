@@ -12,6 +12,7 @@ import AddProject from "./pages/LogicalPages/AddProject";
 import ProjectDetails from "./pages/LogicalPages/ProjectDetails";
 import ProtectedRoute from "./context/ProtectedRoute";
 import EditProject from "./pages/LogicalPages/EditProject";
+import AddTask from "./pages/LogicalPages/AddTask";
 
 
 function App() {
@@ -110,7 +111,21 @@ function App() {
           }
         />
 
+        <Route
+           path="/tasks/add"
+           element={
+          <ProtectedRoute role="manager">
+          <Layout>
+           <AddTask />
+         </Layout>          
+         </ProtectedRoute>
+       }
+       />
+
+
       </Routes>
+
+
     </Router>
   );
 }
