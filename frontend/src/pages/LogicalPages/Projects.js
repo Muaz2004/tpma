@@ -5,22 +5,17 @@ import { AuthContext } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { GET_PROJECTS } from "../../graphql/LogicalQueries";
-import { useLocation } from "react-router-dom";
+
 
 const Projects = () => {
   const { user } = useContext(AuthContext);
   const { loading, error, data } = useQuery(GET_PROJECTS, {
     fetchPolicy: "network-only",
   });
-  const location = useLocation();
-
-// Display success message if project was deleted
 
 
-  {location.state?.deleteSuccess && (
-  <p>{location.state.deleteSuccess}</p>
-)}
 
+  
 
   if (loading)
     return (

@@ -16,6 +16,7 @@ const ProjectDetails = () => {
   const {user} =useContext(AuthContext)
   const { loading, error, data } = useQuery(GET_PROJECT, {
     variables: { id },
+    fetchPolicy: "network-only",
   });
  
   // Delete project mutation
