@@ -195,11 +195,12 @@ const AddTask = () => {
 
 
             {/* Error */}
-        {mutationError && (
-          <div className="text-sm text-red-700 bg-red-100/60 rounded-xl px-4 py-2 text-center">
-            Failed to create task
-          </div>
-        )}
+             {mutationError && (
+  <div className="text-sm text-red-700 bg-red-100/60 rounded-xl px-4 py-2 text-center">
+    {mutationError.message}
+  </div>
+)}
+
 
         {/* Submit */}
         <div className="pt-2">

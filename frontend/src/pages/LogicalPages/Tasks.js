@@ -4,6 +4,7 @@ import { ClipboardList, Calendar, Users,Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
+import { useParams } from "react-router-dom";
 
 
 
@@ -30,6 +31,7 @@ const GET_TASKS = gql`
 const Tasks = () => {
   const { loading, error, data } = useQuery(GET_TASKS , { fetchPolicy: "network-only" });
   const { user } = useContext(AuthContext);
+  const { id } = useParams();
 
   if (loading)
     return (
@@ -83,6 +85,7 @@ const Tasks = () => {
               : "bg-gray-400"; // ToDo
 
           return (
+             <Link to={`/tasks/${task.id}`} key={task.id} className="card-link">
             <div
               key={task.id}
               className="task-card border p-4 rounded-xl shadow-md bg-white hover:scale-105 transition-transform duration-300"
@@ -125,7 +128,7 @@ const Tasks = () => {
                   {task.status}
                 </span>
               </p>
-            </div>
+            </div>   </Link>
           );
         })}
       </div>

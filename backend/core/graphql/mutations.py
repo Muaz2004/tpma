@@ -225,8 +225,7 @@ class UpdateTaskStatus(graphene.Mutation):
             raise GraphQLError("Task not found")
 
         # Permission check
-        if task.assigned_to != user and user.role != "Manager":
-            raise GraphQLError("You cannot update someone else's task")
+
         if user != task.assigned_to and user != task.project.creator:
             raise GraphQLError("You cannot update this task unless you are the assignee or project creator.")
 
@@ -266,10 +265,9 @@ class UpdateTask(graphene.Mutation):
         except Task.DoesNotExist:
             raise GraphQLError("Task not found")
 
-        if user != task.assigned_to and user.role != "Manager":
-            raise GraphQLError("You cannot update a task that is not yours unless you are a Manager.")
-        if user != task.assigned_to and user != task.project.creator:
-           raise GraphQLError("You cannot update this task unless you are the assignee or project creator.")
+        if user != task.project.creator:
+            raise GraphQLError("Only the project creator can update this task.")
+
 
 
         if title:
@@ -298,8 +296,6 @@ class AssignTask(graphene.Mutation):
 
     def mutate(self, info, task_id, user_id):
         user = get_user_from_info(info)
-        if user.role != "Manager":
-            raise GraphQLError("Only managers can assign tasks")
         if user != task.project.creator:
             raise GraphQLError("Only the project creator can assign tasks in this project.")
 
@@ -335,8 +331,6 @@ class DeleteTask(graphene.Mutation):
         except Task.DoesNotExist:
             raise GraphQLError("Task not found")
 
-        if user.role != "Manager":
-            raise GraphQLError("Only a Manager can delete tasks.")
         if user != task.project.creator:
             raise GraphQLError("Only the project creator can delete tasks in this project.")
 

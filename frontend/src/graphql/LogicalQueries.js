@@ -147,3 +147,27 @@ export const GET_USERS = gql`
   }
 `;
 
+
+export const GET_TASK = gql`
+  query GetTask($id: ID!) {
+    task(id: $id) {
+      id
+      title
+      description
+      status
+      dueDate
+      assignedTo {
+        id
+        firstName
+        email
+      }
+      project {
+        id
+        name
+        creator {
+          id
+        }
+      }
+    }
+  }
+`;
