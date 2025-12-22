@@ -103,19 +103,9 @@ const AddTask = () => {
         onSubmit={handleSubmit}
         className="space-y-6 bg-green-50/60 backdrop-blur rounded-3xl px-6 py-8"
       >
-        {/* Success */}
-        {success && (
-          <div className="text-sm text-green-700 bg-green-100/60 rounded-xl px-4 py-2 text-center">
-            Task created successfully. Redirecting…
-          </div>
-        )}
+       
 
-        {/* Error */}
-        {mutationError && (
-          <div className="text-sm text-red-700 bg-red-100/60 rounded-xl px-4 py-2 text-center">
-            Failed to create task
-          </div>
-        )}
+       
 
         {/* Title */}
         <div>
@@ -197,6 +187,19 @@ const AddTask = () => {
             ))}
           </select>
         </div>
+        -{success && (
+           <div className="text-sm text-green-700 bg-green-100/80 rounded-xl px-4 py-3 text-center">
+           Task created successfully. Redirecting…
+          </div>
+           )}
+
+
+            {/* Error */}
+        {mutationError && (
+          <div className="text-sm text-red-700 bg-red-100/60 rounded-xl px-4 py-2 text-center">
+            Failed to create task
+          </div>
+        )}
 
         {/* Submit */}
         <div className="pt-2">

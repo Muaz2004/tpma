@@ -28,7 +28,7 @@ const GET_TASKS = gql`
 `;
 
 const Tasks = () => {
-  const { loading, error, data } = useQuery(GET_TASKS);
+  const { loading, error, data } = useQuery(GET_TASKS , { fetchPolicy: "network-only" });
   const { user } = useContext(AuthContext);
 
   if (loading)

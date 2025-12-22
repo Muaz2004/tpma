@@ -62,12 +62,6 @@ const [createProject, { loading, error }] = useMutation(CREATE_PROJECT, {
         className="space-y-6 bg-green-50/60 backdrop-blur rounded-3xl px-6 py-8"
       >
 
-        {/* Success message */}
-        {success && (
-          <div className="text-sm text-green-700 bg-green-100/60 rounded-xl px-4 py-2">
-            Project created successfully. Redirecting…
-          </div>
-        )}
 
         {/* Project Name */}
         <div>
@@ -147,6 +141,14 @@ const [createProject, { loading, error }] = useMutation(CREATE_PROJECT, {
             <option value="Completed">Completed</option>
           </select>
         </div>
+   
+                {/* Success message */}
+          {success && (
+       <div className="text-sm text-green-700 bg-green-100/60 rounded-xl px-4 py-2 text-center">
+            Project created successfully. Redirecting…
+       </div>
+        )}
+
 
         {/* Action */}
         <div className="pt-2">

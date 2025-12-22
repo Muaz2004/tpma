@@ -93,17 +93,7 @@ const EditProject = () => {
         onSubmit={handleSubmit}
         className="space-y-6 bg-green-50/60 backdrop-blur rounded-3xl px-6 py-8"
       >
-        {success && (
-          <div className="text-sm text-green-700 bg-green-100/60 rounded-xl px-4 py-2 text-center">
-            Project updated successfully. Redirecting…
-          </div>
-        )}
-
-        {mutationError && (
-          <div className="text-sm text-red-700 bg-red-100/60 rounded-xl px-4 py-2 text-center">
-            {mutationError.message}
-          </div>
-        )}
+       
 
         <div>
           <label className="block text-sm text-green-800 mb-1">
@@ -173,6 +163,21 @@ const EditProject = () => {
             ))}
           </select>
         </div>
+     
+
+              {/* Success message */}
+{success && (
+  <div className="text-sm text-green-700 bg-green-100/60 rounded-xl px-4 py-2 text-center">
+    Project updated successfully. Redirecting…
+  </div>
+)}
+
+{/* Error message */}
+{mutationError && (
+  <div className="text-sm text-red-700 bg-red-100/60 rounded-xl px-4 py-2 text-center">
+    {mutationError.message}
+  </div>
+)}
 
         <div className="pt-2">
           <button
