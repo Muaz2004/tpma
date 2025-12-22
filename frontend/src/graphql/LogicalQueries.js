@@ -53,6 +53,10 @@ export const GET_PROJECTS = gql`
       startDate
       endDate
       status
+      creator {
+        id
+        firstName
+      }
       tasks {
         id
         title
@@ -95,21 +99,20 @@ export const DELETE_PROJECT = gql`
 
 
 
-
 export const CREATE_TASK = gql`
   mutation CreateTask(
     $title: String!
     $description: String!
-    $assigned_to: ID!
+    $assignedTo: ID!
     $project: ID!
-    $due_date: Date!
+    $dueDate: Date!
   ) {
     createTask(
       title: $title
       description: $description
-      assignedTo: $assigned_to
+      assignedTo: $assignedTo
       project: $project
-      dueDate: $due_date
+      dueDate: $dueDate
     ) {
       task {
         id
@@ -130,6 +133,7 @@ export const CREATE_TASK = gql`
     }
   }
 `;
+
 
 
 
