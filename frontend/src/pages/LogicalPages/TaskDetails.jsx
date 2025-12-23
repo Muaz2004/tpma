@@ -1,7 +1,8 @@
-import React, { useContext } from "react";
-import { useQuery } from "@apollo/client";
-import { useParams } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { useQuery, useMutation } from "@apollo/client";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { GET_TASK } from "../../graphql/LogicalQueries";
+import { DELETE_TASK } from "../../graphql/LogicalQueries"; // Updated for deletion
 import {
   ClipboardList,
   Calendar,
@@ -11,17 +12,45 @@ import {
   UserPlus,
   RefreshCcw,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
+import Swal from "sweetalert2";
 
 const TaskDetails = () => {
   const { id } = useParams();
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const { loading, error, data } = useQuery(GET_TASK, {
     variables: { id },
     fetchPolicy: "network-only",
   });
+
+  const [deleteTask, { loading: deleting, error: deleteError }] = useMutation(DELETE_TASK);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const handleDelete = async () => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#9ca3af",
+      confirmButtonText: "Delete",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteTask({ variables: { taskId: id } });
+        setSuccessMessage("Task deleted successfully. Redirecting…");
+        Swal.fire("Deleted!", "Task has been deleted.", "success");
+        setTimeout(() => navigate("/tasks"), 1500);
+      } catch (err) {
+        console.error("Error deleting task:", err);
+        Swal.fire("Error!", err.message, "error");
+      }
+    }
+  };
 
   if (loading)
     return (
@@ -32,18 +61,22 @@ const TaskDetails = () => {
 
   if (error)
     return (
-      <p className="text-center text-red-500 mt-20">
-        {error.message}
-      </p>
+      <p className="text-center text-red-500 mt-20">{error.message}</p>
     );
 
-  const task = data.task;
+  const task = data?.task;
+
+  if (!task)
+    return (
+      <p className="text-center text-gray-400 mt-20">
+        Task not found
+      </p>
+    );
 
   const assignedToId = task.assignedTo?.id ?? null;
   const projectCreatorId = task.project?.creator?.id ?? null;
 
-  const canUpdateStatus =
-    user.id === assignedToId || user.id === projectCreatorId;
+  const canUpdateStatus = user.id === assignedToId || user.id === projectCreatorId;
   const canUpdateTask = user.id === projectCreatorId;
   const canAssignOrDelete = user.id === projectCreatorId;
 
@@ -56,7 +89,6 @@ const TaskDetails = () => {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
-
       {/* Page Intro */}
       <div className="mb-8 text-center animate-fade-slide">
         <h1 className="text-3xl font-semibold text-emerald-600 mb-2">
@@ -70,7 +102,6 @@ const TaskDetails = () => {
 
       {/* Card wrapper */}
       <div className="bg-green-50/70 backdrop-blur rounded-2xl p-8 shadow-lg border border-green-100">
-
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div>
@@ -130,25 +161,23 @@ const TaskDetails = () => {
         {/* Actions */}
         <div className="border-t border-emerald-200 pt-6">
           <div className="flex flex-wrap gap-3">
-
             {canUpdateStatus && (
-      <Link to={`/tasks/${task.id}/update-status`}>
-        <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 text-sm hover:bg-white transition">
-          <RefreshCcw className="w-4 h-4" />
-          Update Status
-        </button>
-      </Link>
-    )}
+              <Link to={`/tasks/${task.id}/update-status`}>
+                <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 text-sm hover:bg-white transition">
+                  <RefreshCcw className="w-4 h-4" />
+                  Update Status
+                </button>
+              </Link>
+            )}
 
             {canUpdateTask && (
-  <Link to={`/tasks/${task.id}/edit`}>
-    <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 text-sm hover:bg-white transition">
-      <Edit className="w-4 h-4" />
-      Edit Task
-    </button>
-  </Link>
-)}
-
+              <Link to={`/tasks/${task.id}/edit`}>
+                <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 text-sm hover:bg-white transition">
+                  <Edit className="w-4 h-4" />
+                  Edit Task
+                </button>
+              </Link>
+            )}
 
             {canAssignOrDelete && (
               <>
@@ -157,16 +186,32 @@ const TaskDetails = () => {
                   Assign Task
                 </button>
 
-                <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 text-red-600 text-sm hover:bg-red-100 transition">
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 text-red-600 text-sm hover:bg-red-100 transition"
+                >
                   <Trash2 className="w-4 h-4" />
-                  Delete Task
+                  {deleting ? "Deleting..." : "Delete Task"}
                 </button>
               </>
             )}
-
           </div>
-        </div>
 
+          {/* Mutation Error */}
+          {deleteError && (
+            <div className="text-sm text-red-700 bg-red-100/60 rounded-xl px-4 py-2 mt-4 text-center">
+              {deleteError.message}
+            </div>
+          )}
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="text-sm text-green-700 bg-green-100/60 rounded-xl px-4 py-2 mt-4 text-center">
+              {successMessage}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

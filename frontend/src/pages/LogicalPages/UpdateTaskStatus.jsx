@@ -4,6 +4,23 @@ import { useParams, useNavigate } from "react-router-dom";
 import { GET_TASK, UPDATE_TASK_STATUS } from "../../graphql/LogicalQueries";
 import { RefreshCcw, ClipboardList, Calendar } from "lucide-react";
 
+/* ===== STATUS MAPPING (ONLY CHANGE) ===== */
+const STATUS_MAP_FROM_BACKEND = {
+  TODO: "ToDo",
+  INPROGRESS: "InProgress",
+  DONE: "Done",
+  ToDo: "ToDo",
+  InProgress: "InProgress",
+  Done: "Done",
+};
+
+const STATUS_MAP_TO_BACKEND = {
+  ToDo: "ToDo",
+  InProgress: "InProgress",
+  Done: "Done",
+};
+/* ======================================= */
+
 const UpdateTaskStatus = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -22,7 +39,9 @@ const UpdateTaskStatus = () => {
   const task = data?.task;
 
   useEffect(() => {
-    if (task) setNewStatus(task.status);
+    if (task?.status) {
+      setNewStatus(STATUS_MAP_FROM_BACKEND[task.status]);
+    }
   }, [task]);
 
   if (loading)
@@ -31,12 +50,14 @@ const UpdateTaskStatus = () => {
         Loading task…
       </p>
     );
+
   if (error)
     return (
       <p className="text-center text-red-500 mt-20">
         Error loading task: {error.message}
       </p>
     );
+
   if (!task)
     return (
       <p className="text-center text-gray-400 mt-20">
@@ -44,7 +65,6 @@ const UpdateTaskStatus = () => {
       </p>
     );
 
-  // Determine status color
   const statusColor =
     task.status === "Done"
       ? "bg-emerald-500"
@@ -56,7 +76,10 @@ const UpdateTaskStatus = () => {
     e.preventDefault();
     try {
       await updateTaskStatus({
-        variables: { taskId: id, status: newStatus },
+        variables: {
+          taskId: id,
+          status: STATUS_MAP_TO_BACKEND[newStatus],
+        },
       });
       setSuccess(true);
       setTimeout(() => navigate(`/tasks/${id}`), 1500);
@@ -76,32 +99,46 @@ const UpdateTaskStatus = () => {
         </p>
       </div>
 
-      {/* Single Card */}
       <div className="bg-green-50/60 backdrop-blur rounded-2xl p-8 shadow-lg border border-green-100 space-y-6">
-        
-        {/* Task Info */}
-        <div className="space-y-2">
-          <p><strong>Title:</strong> {task.title}</p>
-          <p><strong>Description:</strong> {task.description}</p>
-          <p>
-            <strong>Current Status:</strong>{" "}
-            <span className={`px-2 py-1 rounded-full text-white text-sm ${statusColor}`}>
-              {task.status}
-            </span>
-          </p>
+        <div className="space-y-2 text-sm text-emerald-700">
+  <p>
+    <span className="font-medium text-emerald-800">Title:</span>{" "}
+    {task.title}
+  </p>
+
+  <p>
+    <span className="font-medium text-emerald-800">Description:</span>{" "}
+    {task.description}
+  </p>
+
+  <p className="flex items-center gap-2">
+    <span className="font-medium text-emerald-800">
+      Current Status:
+    </span>
+    <span
+      className={`px-2 py-1 rounded-full text-white text-xs ${statusColor}`}
+    >
+      {task.status}
+    </span>
+  </p>
+
+
           <div className="flex items-center gap-2 text-sm text-emerald-600/70">
             <ClipboardList className="w-4 h-4" />
             <span>Project: {task.project?.name ?? "Unknown"}</span>
           </div>
+
           <div className="flex items-center gap-2 text-sm text-emerald-600/70">
             <Calendar className="w-4 h-4" />
             <span>
-              Due Date: {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "Not set"}
+              Due Date:{" "}
+              {task.dueDate
+                ? new Date(task.dueDate).toLocaleDateString()
+                : "Not set"}
             </span>
           </div>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-3">
           <label className="block text-sm font-medium text-emerald-700">
             New Status
@@ -116,7 +153,6 @@ const UpdateTaskStatus = () => {
             </select>
           </label>
 
-          {/* Success & Error messages near button */}
           {success && (
             <div className="text-sm text-green-700 bg-green-100/60 rounded-xl px-4 py-2 text-center">
               Task status updated successfully. Redirecting…
@@ -129,7 +165,6 @@ const UpdateTaskStatus = () => {
             </div>
           )}
 
-          {/* Submit button */}
           <button
             type="submit"
             disabled={mutationLoading}
