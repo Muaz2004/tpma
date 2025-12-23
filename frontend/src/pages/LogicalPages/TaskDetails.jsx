@@ -11,6 +11,7 @@ import {
   UserPlus,
   RefreshCcw,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 
 const TaskDetails = () => {
@@ -131,11 +132,13 @@ const TaskDetails = () => {
           <div className="flex flex-wrap gap-3">
 
             {canUpdateStatus && (
-              <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 text-sm hover:bg-white transition">
-                <RefreshCcw className="w-4 h-4" />
-                Update Status
-              </button>
-            )}
+      <Link to={`/tasks/${task.id}/update-status`}>
+        <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 text-sm hover:bg-white transition">
+          <RefreshCcw className="w-4 h-4" />
+          Update Status
+        </button>
+      </Link>
+    )}
 
             {canUpdateTask && (
               <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 text-sm hover:bg-white transition">

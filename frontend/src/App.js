@@ -14,6 +14,8 @@ import ProtectedRoute from "./context/ProtectedRoute";
 import EditProject from "./pages/LogicalPages/EditProject";
 import AddTask from "./pages/LogicalPages/AddTask";
 import TaskDetails from "./pages/LogicalPages/TaskDetails";
+import UpdateTaskStatus from "./pages/LogicalPages/UpdateTaskStatus";
+
 
 
 function App() {
@@ -132,6 +134,17 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+        <Route
+          path="/tasks/:id/update-status"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <UpdateTaskStatus />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
 
 
       </Routes>
