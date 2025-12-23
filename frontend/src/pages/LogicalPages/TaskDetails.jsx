@@ -1,8 +1,7 @@
 import React, { useContext, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { GET_TASK } from "../../graphql/LogicalQueries";
-import { DELETE_TASK } from "../../graphql/LogicalQueries"; // Updated for deletion
+import { GET_TASK, DELETE_TASK } from "../../graphql/LogicalQueries";
 import {
   ClipboardList,
   Calendar,
@@ -10,6 +9,8 @@ import {
   Edit,
   Trash2,
   UserPlus,
+  CheckCircle,
+  XCircle,
   RefreshCcw,
 } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
@@ -25,32 +26,10 @@ const TaskDetails = () => {
     fetchPolicy: "network-only",
   });
 
-  const [deleteTask, { loading: deleting, error: deleteError }] = useMutation(DELETE_TASK);
-  const [successMessage, setSuccessMessage] = useState("");
+  const [deleteTask, { loading: deleting, error: deleteError }] =
+    useMutation(DELETE_TASK);
 
-  const handleDelete = async () => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "This action cannot be undone!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#ef4444",
-      cancelButtonColor: "#9ca3af",
-      confirmButtonText: "Delete",
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await deleteTask({ variables: { taskId: id } });
-        setSuccessMessage("Task deleted successfully. Redirecting…");
-        Swal.fire("Deleted!", "Task has been deleted.", "success");
-        setTimeout(() => navigate("/tasks"), 1500);
-      } catch (err) {
-        console.error("Error deleting task:", err);
-        Swal.fire("Error!", err.message, "error");
-      }
-    }
-  };
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   if (loading)
     return (
@@ -68,9 +47,7 @@ const TaskDetails = () => {
 
   if (!task)
     return (
-      <p className="text-center text-gray-400 mt-20">
-        Task not found
-      </p>
+      <p className="text-center text-gray-400 mt-20">Task not found</p>
     );
 
   const assignedToId = task.assignedTo?.id ?? null;
@@ -84,8 +61,29 @@ const TaskDetails = () => {
     task.status === "Done"
       ? "bg-emerald-500 text-white"
       : task.status === "InProgress"
-      ? "bg-yellow-500 text-white"
+      ? "bg-amber-400 text-white"
       : "bg-gray-400 text-white";
+
+  const handleDelete = () => {
+    setShowConfirmation(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await deleteTask({ variables: { taskId: id } });
+
+      // SweetAlert success popup
+      Swal.fire("Deleted!", "Task has been deleted.", "success");
+
+      // Navigate immediately after deletion
+      navigate("/tasks");
+    } catch (err) {
+      console.error("Error deleting task:", err);
+      Swal.fire("Error!", err.message, "error");
+    }
+
+    setShowConfirmation(false);
+  };
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10">
@@ -137,9 +135,7 @@ const TaskDetails = () => {
                 </span>
               </>
             ) : (
-              <span className="text-emerald-600/50">
-                Not assigned yet
-              </span>
+              <span className="text-emerald-600/50">Not assigned yet</span>
             )}
           </div>
 
@@ -198,21 +194,41 @@ const TaskDetails = () => {
             )}
           </div>
 
-          {/* Mutation Error */}
           {deleteError && (
             <div className="text-sm text-red-700 bg-red-100/60 rounded-xl px-4 py-2 mt-4 text-center">
               {deleteError.message}
             </div>
           )}
-
-          {/* Success Message */}
-          {successMessage && (
-            <div className="text-sm text-green-700 bg-green-100/60 rounded-xl px-4 py-2 mt-4 text-center">
-              {successMessage}
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      {showConfirmation && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+          <div className="bg-green-50/70 backdrop-blur rounded-2xl p-8 shadow-lg border border-green-100 max-w-sm w-full text-center space-y-4">
+            <CheckCircle className="w-10 h-10 mx-auto text-emerald-500" />
+            <p className="text-emerald-700 text-lg font-medium">
+              Are you sure you want to delete this task?
+            </p>
+            <div className="flex justify-center gap-4 mt-4">
+              <button
+                onClick={confirmDelete}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition"
+              >
+                <CheckCircle className="w-4 h-4" />
+                Yes, Delete
+              </button>
+              <button
+                onClick={() => setShowConfirmation(false)}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition"
+              >
+                <XCircle className="w-4 h-4" />
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
