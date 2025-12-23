@@ -185,3 +185,30 @@ export const UPDATE_TASK_STATUS = gql`
   }
 `;
 
+
+
+export const UPDATE_TASK = gql`
+  mutation UpdateTask(
+    $taskId: ID!
+    $title: String
+    $description: String
+    $dueDate: Date
+    $status: String
+  ) {
+    updateTask(
+      taskId: $taskId
+      title: $title
+      description: $description
+      dueDate: $dueDate
+      status: $status
+    ) {
+      task {
+        id
+        title
+        description
+        dueDate
+        status
+      }
+    }
+  }
+`;

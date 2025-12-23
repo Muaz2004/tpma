@@ -15,6 +15,7 @@ import EditProject from "./pages/LogicalPages/EditProject";
 import AddTask from "./pages/LogicalPages/AddTask";
 import TaskDetails from "./pages/LogicalPages/TaskDetails";
 import UpdateTaskStatus from "./pages/LogicalPages/UpdateTaskStatus";
+import EditTask from "./pages/LogicalPages/EditTask";
 
 
 
@@ -141,6 +142,17 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <UpdateTaskStatus />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/tasks/:id/edit"
+          element={
+            <ProtectedRoute role="manager">
+              <Layout>
+                <EditTask />
               </Layout>
             </ProtectedRoute>
           }

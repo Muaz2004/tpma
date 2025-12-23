@@ -33,7 +33,7 @@ const EditProject = () => {
   });
 
   const [success, setSuccess] = useState(false);
-
+ 
   useEffect(() => {
     if (data?.project) {
       setFormState({

@@ -141,11 +141,14 @@ const TaskDetails = () => {
     )}
 
             {canUpdateTask && (
-              <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 text-sm hover:bg-white transition">
-                <Edit className="w-4 h-4" />
-                Edit Task
-              </button>
-            )}
+  <Link to={`/tasks/${task.id}/edit`}>
+    <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 text-sm hover:bg-white transition">
+      <Edit className="w-4 h-4" />
+      Edit Task
+    </button>
+  </Link>
+)}
+
 
             {canAssignOrDelete && (
               <>
