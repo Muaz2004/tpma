@@ -224,3 +224,20 @@ export const DELETE_TASK = gql`
   }
 `;
 
+
+
+
+export const ASSIGN_TASK = gql`
+  mutation AssignTask($taskId: ID!, $userId: ID!) {
+    assignTask(taskId: $taskId, userId: $userId) {
+      task {
+        id
+        assignedTo {
+          id
+          firstName
+          email
+        }
+      }
+    }
+  }
+`;
