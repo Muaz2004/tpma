@@ -1,91 +1,139 @@
-import React from "react";
-import { useParams } from "react-router-dom";
-import { useQuery } from "@apollo/client";
-import { GET_TASK, GET_USERS } from "../../graphql/LogicalQueries";
+import React, { useContext, useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useQuery, useMutation } from "@apollo/client";
+import { GET_TASK, GET_USERS, ASSIGN_TASK } from "../../graphql/LogicalQueries";
 import { AuthContext } from "../../context/AuthContext";
-import { useContext } from "react";
-import { useState } from "react";
-import { ASSIGN_TASK } from "../../graphql/LogicalQueries";
-import { useMutation } from "@apollo/client";
-
-
 
 const AssignTask = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const [selectedUserId, setSelectedUserId] = useState(null);
 
-    const { loading: taskLoading, error: taskError, data: taskData } = useQuery(GET_TASK, {
+  const [selectedUserId, setSelectedUserId] = useState("");
+
+  const {
+    loading: taskLoading,
+    error: taskError,
+    data: taskData,
+  } = useQuery(GET_TASK, {
     variables: { id },
     fetchPolicy: "network-only",
-    });
-    const { loading: usersLoading, error: usersError, data: usersData } = useQuery(GET_USERS);
+  });
 
-    const [assignTask, { loading: assigning, error: assignError }] = useMutation(ASSIGN_TASK, {
-    refetchQueries: [{ query: GET_TASK, variables: { id } }],
-    });
+  const {
+    loading: usersLoading,
+    error: usersError,
+    data: usersData,
+  } = useQuery(GET_USERS);
 
-    const handleAssign = () => {
-    if (selectedUserId) {
-        assignTask({
-        variables: {
-            taskId: id,
-            userId: selectedUserId,
-        },
-        });
+  const [assignTask, { loading: assigning, error: assignError }] =
+    useMutation(ASSIGN_TASK);
+
+  useEffect(() => {
+    if (taskData?.task?.assignedTo) {
+      setSelectedUserId(taskData.task.assignedTo.id);
     }
-    };
+  }, [taskData]);
 
+  const handleAssign = async () => {
+    if (!selectedUserId) return;
 
+    try {
+      await assignTask({
+        variables: {
+          taskId: id,
+          userId: selectedUserId,
+        },
+      });
 
+      navigate(`/tasks/${id}`);
+    } catch (err) {
+      console.error("Assign task failed:", err);
+    }
+  };
 
-
+  if (taskLoading || usersLoading) {
     return (
-    
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-4">Assign Task</h2>
-      {taskLoading || usersLoading ? (
-        <p className="text-gray-500">Loading...</p>
-      ) : taskError ? (
-        <p className="text-red-500">Error loading task: {taskError.message}</p>
-        ) : usersError ? (
-        <p className="text-red-500">Error loading users: {usersError.message}</p>
-        ) : (
-        <>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Select User:</label>
-            <select
-              className="w-full p-2 border border-gray-300 rounded"
-              value={selectedUserId || ""}
-                onChange={(e) => setSelectedUserId(e.target.value)}
-            >
-                <option value="" disabled>
-                    -- Select a user --
-                </option>
-                {usersData.users.map((u) => (
-                    <option key={u.id} value={u.id}>
-                    {u.name} ({u.email})
-                    </option>
-                ))}
-            </select>
-          </div>
-          
-            <button
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                onClick={handleAssign}
-                disabled={assigning || !selectedUserId}
-            >
-                {assigning ? "Assigning..." : "Assign Task"}
-            </button>
-            {assignError && (
-                <p className="text-red-500 mt-2">Error assigning task: {assignError.message}</p>
+      <p className="text-center text-gray-400 mt-20 animate-pulse">
+        Loading…
+      </p>
+    );
+  }
 
-            )}
-        </>
-      )}
-    </div>
-    
+  if (taskError) {
+    return (
+      <p className="text-center text-red-500 mt-20">
+        {taskError.message}
+      </p>
+    );
+  }
 
+  if (usersError) {
+    return (
+      <p className="text-center text-red-500 mt-20">
+        {usersError.message}
+      </p>
+    );
+  }
 
+  const task = taskData.task;
+
+  const regularUsers = usersData.users.filter(
+    (u) => u.role?.toLowerCase() === "user"
   );
-} ; export default AssignTask; 
+
+  return (
+    <div className="max-w-xl mx-auto px-6 py-10">
+      <div className="mb-6 text-center">
+        <h1 className="text-2xl font-semibold text-emerald-600">
+          Assign Task
+        </h1>
+        <p className="text-emerald-600/70 mt-1">
+          Assign this task to a user
+        </p>
+      </div>
+
+      <div className="bg-green-50/70 rounded-2xl p-6 shadow-lg border border-green-100 space-y-4">
+        <div>
+          <p className="text-sm text-emerald-700">
+            <strong>Task:</strong> {task.title}
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-emerald-700 mb-1">
+            Select User
+          </label>
+          <select
+            value={selectedUserId}
+            onChange={(e) => setSelectedUserId(e.target.value)}
+            className="w-full border border-emerald-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+          >
+            <option value="">-- Select a user --</option>
+            {regularUsers.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.firstName || u.username} ({u.email})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {assignError && (
+          <div className="text-sm text-red-700 bg-red-100/60 rounded-xl px-4 py-2 text-center">
+            {assignError.message}
+          </div>
+        )}
+
+        <button
+          onClick={handleAssign}
+          disabled={assigning || !selectedUserId}
+          className="w-full px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm hover:bg-emerald-600 transition disabled:opacity-50"
+        >
+          {assigning ? "Assigning…" : "Assign Task"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default AssignTask;

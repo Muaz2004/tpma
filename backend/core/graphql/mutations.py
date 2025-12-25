@@ -296,24 +296,31 @@ class AssignTask(graphene.Mutation):
 
     def mutate(self, info, task_id, user_id):
         user = get_user_from_info(info)
-        if user != task.project.creator:
-            raise GraphQLError("Only the project creator can assign tasks in this project.")
 
-
+        # 1️⃣ Get task FIRST
         try:
             task = Task.objects.get(id=task_id)
         except Task.DoesNotExist:
             raise GraphQLError("Task not found")
 
+        # 2️⃣ Permission check AFTER task exists
+        if user != task.project.creator:
+            raise GraphQLError(
+                "Only the project creator can assign tasks in this project."
+            )
+
+        # 3️⃣ Get user to assign
         try:
             new_user = CustomUser.objects.get(id=user_id)
         except CustomUser.DoesNotExist:
             raise GraphQLError("User not found")
 
+        # 4️⃣ Assign and save
         task.assigned_to = new_user
         task.save()
 
         return AssignTask(task=task)
+
 
 # -----------------------------
 # DELETE TASK

@@ -177,10 +177,13 @@ const TaskDetails = () => {
 
             {canAssignOrDelete && (
               <>
-                <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 text-sm hover:bg-white transition">
-                  <UserPlus className="w-4 h-4" />
-                  Assign Task
-                </button>
+                <Link to={`/tasks/${task.id}/assign`}>
+  <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/70 text-sm hover:bg-white transition">
+    <UserPlus className="w-4 h-4" />
+    Assign Task
+  </button>
+</Link>
+
 
                 <button
                   onClick={handleDelete}
