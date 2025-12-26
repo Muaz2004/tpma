@@ -241,3 +241,24 @@ export const ASSIGN_TASK = gql`
     }
   }
 `;
+
+
+export const GET_TASKS = gql`
+  query GetTasks {
+    allTasks {
+      id
+      title
+      description
+      dueDate
+      status
+      project {
+        id
+        name
+      }
+      assignedTo {
+        id
+        firstName
+      }
+    }
+  }
+`;

@@ -5,30 +5,12 @@ import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { useParams } from "react-router-dom";
+import { GET_TASKS } from "../../graphql/LogicalQueries";
 
 
 
 
 
-const GET_TASKS = gql`
-  query GetTasks {
-    allTasks {
-      id
-      title
-      description
-      dueDate
-      status
-      project {
-        id
-        name
-      }
-      assignedTo {
-        id
-        firstName
-      }
-    }
-  }
-`;
 
 const Tasks = () => {
   const { loading, error, data } = useQuery(GET_TASKS , { fetchPolicy: "network-only" });
