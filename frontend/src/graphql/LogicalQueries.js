@@ -262,3 +262,27 @@ export const GET_TASKS = gql`
     }
   }
 `;
+
+
+
+export const GET_TASKS_BY_USER = gql`
+  query GetTasksByUser($userId: ID!) {
+    tasksByUser(userId: $userId) {
+      id
+      title
+      description
+      status
+      dueDate
+      project {
+        id
+        name
+      }
+      assignedTo {
+        id
+        firstName
+        email
+      }
+    }
+  }
+`;
+

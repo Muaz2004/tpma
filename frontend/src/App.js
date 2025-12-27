@@ -17,6 +17,7 @@ import TaskDetails from "./pages/LogicalPages/TaskDetails";
 import UpdateTaskStatus from "./pages/LogicalPages/UpdateTaskStatus";
 import EditTask from "./pages/LogicalPages/EditTask";
 import AssignTask from "./pages/LogicalPages/AssignTask";
+import MyTasks from "./pages/advanced_pages/MyTasks";
 
 
 
@@ -169,6 +170,19 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/my-tasks"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <MyTasks />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        
 
 
       </Routes>

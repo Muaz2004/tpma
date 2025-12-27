@@ -1,25 +1,32 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import  { useContext } from "react";
+import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-
 
 const Topbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMoreOpen, setIsMoreOpen] = useState(false); // for More dropdown
   const location = useLocation();
-  const {user}=useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
   const navLinks = [
-  { label: "Projects", path: "/projects" },
-  { label: "Tasks", path: "/tasks" },
-  {
-    label: "Dashboard",
-    path:
-      user?.role?.toLowerCase() === "manager"
-        ? "/manager-dashboard"
-        : "/user-dashboard",
-  },
-];
+    { label: "Projects", path: "/projects" },
+    { label: "Tasks", path: "/tasks" },
+    {
+      label: "Dashboard",
+      path:
+        user?.role?.toLowerCase() === "manager"
+          ? "/manager-dashboard"
+          : "/user-dashboard",
+    },
+    { 
+      label: "More", 
+      dropdown: [
+        { label: "My Tasks", path: "/my-tasks" },
+        { label: "My Projects", path: "/my-projects" },
+      ],
+    },
+  ];
 
   const isActive = (path) => location.pathname === path;
 
@@ -40,32 +47,63 @@ const Topbar = () => {
           </Link>
 
           {/* Nav container styled as elliptical bar */}
-<div className="flex-1 mx-6">
-  <div className="relative rounded-full px-6 py-3 bg-white/20 backdrop-blur-sm flex justify-center">
-    <nav className="flex items-center gap-8">
-      {navLinks.map((link) => (
-        <Link
-          key={link.path}
-          to={link.path}
-          className={`text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-            isActive(link.path)
-              ? "text-white"
-              : "text-white/80 hover:text-white"
-          } relative group flex items-center`}
-        >
-          {link.label}
-          <span className="ml-1 text-xs rotate-45">▾</span>
-          <span
-            className={`absolute bottom-0 left-0 h-0.5 bg-white transition-all duration-200 ${
-              isActive(link.path) ? "w-full" : "w-0 group-hover:w-full"
-            }`}
-          />
-        </Link>
-      ))}
-    </nav>
-  </div>
-</div>
+          <div className="flex-1 mx-6">
+            <div className="relative rounded-full px-6 py-3 bg-white/20 backdrop-blur-sm flex justify-center">
+              <nav className="flex items-center gap-8 relative">
 
+                {navLinks.map((link) =>
+                  link.dropdown ? (
+                    <div key={link.label} className="relative">
+                      {/* Clickable More link */}
+                      <button
+                        onClick={() => setIsMoreOpen(!isMoreOpen)}
+                        className="text-sm font-medium text-white/80 hover:text-white flex items-center gap-1"
+                      >
+                        {link.label} <span className="text-xs rotate-45">▾</span>
+                      </button>
+
+                      {/* Dropdown */}
+                      {isMoreOpen && (
+                        <div className="absolute top-full mt-2 w-44 bg-green-50/70 backdrop-blur rounded-xl shadow-lg border border-green-100 z-50 overflow-hidden">
+                          {link.dropdown.map((item, idx) => (
+                            <Link
+                              key={item.path}
+                              to={item.path}
+                              className={`block px-4 py-2 text-emerald-700 hover:bg-green-100 transition-colors duration-150 ${
+                                idx === 0 ? "rounded-t-xl" : ""
+                              } ${idx === link.dropdown.length - 1 ? "rounded-b-xl" : ""}`}
+                              onClick={() => setIsMoreOpen(false)}
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <Link
+                      key={link.path}
+                      to={link.path}
+                      className={`text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                        isActive(link.path)
+                          ? "text-white"
+                          : "text-white/80 hover:text-white"
+                      } relative group flex items-center`}
+                    >
+                      {link.label}
+                      <span className="ml-1 text-xs rotate-45">▾</span>
+                      <span
+                        className={`absolute bottom-0 left-0 h-0.5 bg-white transition-all duration-200 ${
+                          isActive(link.path) ? "w-full" : "w-0 group-hover:w-full"
+                        }`}
+                      />
+                    </Link>
+                  )
+                )}
+
+              </nav>
+            </div>
+          </div>
 
           {/* Profile & Logout */}
           <div className="flex items-center gap-4 flex-shrink-0">
@@ -107,5 +145,3 @@ const Topbar = () => {
 };
 
 export default Topbar;
-
-// second to last
