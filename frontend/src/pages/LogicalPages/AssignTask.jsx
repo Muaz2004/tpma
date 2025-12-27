@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@apollo/client";
+import { RefreshCcw } from "lucide-react";
 import { GET_TASK, GET_USERS, ASSIGN_TASK } from "../../graphql/LogicalQueries";
 import { AuthContext } from "../../context/AuthContext";
 
@@ -10,6 +11,7 @@ const AssignTask = () => {
   const { user } = useContext(AuthContext);
 
   const [selectedUserId, setSelectedUserId] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const {
     loading: taskLoading,
@@ -26,7 +28,7 @@ const AssignTask = () => {
     data: usersData,
   } = useQuery(GET_USERS);
 
-  const [assignTask, { loading: assigning, error: assignError }] =
+  const [assignTask, { loading: mutationLoading, error: mutationError }] =
     useMutation(ASSIGN_TASK);
 
   useEffect(() => {
@@ -46,7 +48,11 @@ const AssignTask = () => {
         },
       });
 
-      navigate(`/tasks/${id}`);
+      setSuccess(true);
+
+      setTimeout(() => {
+        navigate(`/tasks/${id}`);
+      }, 1200);
     } catch (err) {
       console.error("Assign task failed:", err);
     }
@@ -93,12 +99,22 @@ const AssignTask = () => {
         </p>
       </div>
 
-      <div className="bg-green-50/70 rounded-2xl p-6 shadow-lg border border-green-100 space-y-4">
-        <div>
-          <p className="text-sm text-emerald-700">
-            <strong>Task:</strong> {task.title}
-          </p>
-        </div>
+      <div className="bg-emerald-50/70 rounded-2xl p-6 shadow-lg border border-emerald-100 space-y-4">
+        <p className="text-sm text-emerald-700">
+          <strong>Task:</strong> {task.title}
+        </p>
+
+        {success && (
+          <div className="text-sm text-green-700 bg-green-100/60 rounded-xl px-4 py-2 text-center">
+            Task assigned successfully. Redirecting…
+          </div>
+        )}
+
+        {mutationError && (
+          <div className="text-sm text-red-700 bg-red-100/60 rounded-xl px-4 py-2 text-center">
+            {mutationError.message}
+          </div>
+        )}
 
         <div>
           <label className="block text-sm font-medium text-emerald-700 mb-1">
@@ -118,18 +134,13 @@ const AssignTask = () => {
           </select>
         </div>
 
-        {assignError && (
-          <div className="text-sm text-red-700 bg-red-100/60 rounded-xl px-4 py-2 text-center">
-            {assignError.message}
-          </div>
-        )}
-
         <button
           onClick={handleAssign}
-          disabled={assigning || !selectedUserId}
-          className="w-full px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm hover:bg-emerald-600 transition disabled:opacity-50"
+          disabled={mutationLoading || !selectedUserId}
+          className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 text-white text-sm hover:bg-emerald-600 transition disabled:opacity-50"
         >
-          {assigning ? "Assigning…" : "Assign Task"}
+          <RefreshCcw className="w-4 h-4" />
+          {mutationLoading ? "Assigning…" : "Assign Task"}
         </button>
       </div>
     </div>
