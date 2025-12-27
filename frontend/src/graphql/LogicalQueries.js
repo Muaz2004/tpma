@@ -286,3 +286,24 @@ export const GET_TASKS_BY_USER = gql`
   }
 `;
 
+
+
+export const GET_PROJECTS_BY_USER = gql`
+  query ProjectsByUser($userId: ID!) {
+    projectsByUser(userId: $userId) {
+      id
+      name
+      description
+      status
+      startDate
+      endDate
+      creator {
+        id
+        firstName
+      }
+    }
+  }
+`;
+
+
+
