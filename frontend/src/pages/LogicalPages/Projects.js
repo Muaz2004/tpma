@@ -1,11 +1,9 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import { useQuery } from "@apollo/client";
-import { Folder, ClipboardList, Plus } from "lucide-react"; // added Plus icon
+import { Folder, ClipboardList, Plus } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
-import { useContext } from "react";
 import { GET_PROJECTS } from "../../graphql/LogicalQueries";
-
 
 const Projects = () => {
   const { user } = useContext(AuthContext);
@@ -13,9 +11,7 @@ const Projects = () => {
     fetchPolicy: "network-only",
   });
 
-
-
-  
+  const [searchTerm, setSearchTerm] = useState("");
 
   if (loading)
     return (
@@ -23,25 +19,47 @@ const Projects = () => {
         Loading projects...
       </p>
     );
+
   if (error)
     return (
-      <p className="text-center text-red-500 mt-20">Error: {error.message}</p>
-    );
-  if (data.allProjects.length === 0)
-    return (
-      <p className="text-center text-gray-400 mt-20">No projects found</p>
+      <p className="text-center text-red-500 mt-20">
+        Error: {error.message}
+      </p>
     );
 
-  // Sort projects by startDate descending (newest first)
-  const sortedProjects = [...data.allProjects].sort(
+  if (!data?.allProjects || data.allProjects.length === 0)
+    return (
+      <p className="text-center text-gray-400 mt-20">
+        No projects found
+      </p>
+    );
+
+ 
+  const filteredProjects = data.allProjects.filter((project) =>
+    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  
+  const sortedProjects = [...filteredProjects].sort(
     (a, b) => new Date(b.startDate) - new Date(a.startDate)
   );
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 relative">
+
+      {/*  Search Input */}
+      <input
+        type="text"
+        placeholder="Search projects..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="mb-6 w-full md:w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
+      />
+
       {/* Page Title */}
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-emerald-500 mb-2 animate-fade-in">
+        <h1 className="text-3xl font-bold text-emerald-500 mb-2">
           All Projects Overview
         </h1>
         <p className="text-emerald-600/80 mb-4">
@@ -49,63 +67,64 @@ const Projects = () => {
         </p>
       </div>
 
-           {/* Create Project Button - modern icon style */}
-           
-{user?.role.toLowerCase() === "manager" && (
-  <Link to="/projects/add">
-    <button
-      className="fixed bottom-6 right-6 z-50 bg-emerald-500 text-white px-5 py-4 rounded-full shadow-lg hover:bg-emerald-600 transition-transform hover:scale-110 flex items-center gap-2"
-      title="Create Project"
-    >
-      <Plus size={24} />
-      Add Project
-    </button>
-  </Link>
-)}
-
-
+      {/* Create Project Button */}
+      {user?.role.toLowerCase() === "manager" && (
+        <Link to="/projects/add">
+          <button
+            className="fixed bottom-6 right-6 z-50 bg-emerald-500 text-white px-5 py-4 rounded-full shadow-lg hover:bg-emerald-600 transition-transform hover:scale-110 flex items-center gap-2"
+          >
+            <Plus size={24} />
+            Add Project
+          </button>
+        </Link>
+      )}
 
       {/* Projects Grid */}
-
-
       <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {sortedProjects.map((project) => (
-          <Link to={`/projects/${project.id}`} key={project.id} className="card-link">
-          <div
+          <Link
+            to={`/projects/${project.id}`}
             key={project.id}
-            className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+            className="card-link"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-emerald-400 flex items-center gap-2">
-                <Folder className="w-5 h-5" />
-                {project.name}
-              </h2>
-              <span
-                className={`text-xs px-2 py-1 rounded-full font-medium ${
-                  project.status === "Completed"
-                    ? "bg-green-600 text-white"
-                    : project.status === "In Progress"
-                    ? "bg-yellow-500 text-white"
-                    : "bg-gray-500 text-white"
-                }`}
-              >
-                {project.status}
-              </span>
-            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
 
-            {/* Description */}
-            <p className="text-emerald-600/80 mb-4">{project.description}</p>
+              {/* Header */}
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-emerald-400 flex items-center gap-2">
+                  <Folder className="w-5 h-5" />
+                  {project.name}
+                </h2>
 
-            {/* Tasks */}
-            <div className="flex items-center gap-3 text-emerald-600/70">
-              <ClipboardList className="w-4 h-4" />
-              <span className="text-sm">
-                {project.tasks.length} Task
-                {project.tasks.length !== 1 && "s"}     /*  want a Description */
-              </span>
+                <span
+                  className={`text-xs px-2 py-1 rounded-full font-medium ${
+                    project.status === "Completed"
+                      ? "bg-green-600 text-white"
+                      : project.status === "In Progress"
+                      ? "bg-yellow-500 text-white"
+                      : "bg-gray-500 text-white"
+                  }`}
+                >
+                  {project.status}
+                </span>
+              </div>
+
+              {/* Description */}
+              <p className="text-emerald-600/80 mb-4">
+                {project.description || "No description provided"}
+              </p>
+
+              {/* Tasks Count */}
+              <div className="flex items-center gap-3 text-emerald-600/70">
+                <ClipboardList className="w-4 h-4" />
+                <span className="text-sm">
+                  {project.tasks.length} Task
+                  {project.tasks.length !== 1 && "s"}
+                </span>
+              </div>
+
             </div>
-          </div>  </Link>
+          </Link>
         ))}
       </div>
     </div>
