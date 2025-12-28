@@ -242,7 +242,6 @@ export const ASSIGN_TASK = gql`
   }
 `;
 
-
 export const GET_TASKS = gql`
   query GetTasks {
     allTasks {
@@ -254,6 +253,9 @@ export const GET_TASKS = gql`
       project {
         id
         name
+        creator {
+          id
+        }
       }
       assignedTo {
         id
@@ -262,6 +264,7 @@ export const GET_TASKS = gql`
     }
   }
 `;
+
 
 
 

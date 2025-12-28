@@ -19,6 +19,7 @@ import EditTask from "./pages/LogicalPages/EditTask";
 import AssignTask from "./pages/LogicalPages/AssignTask";
 import MyTasks from "./pages/advanced_pages/MyTasks";
 import MyProjects from "./pages/advanced_pages/MyProjects";
+import ManagersTask from "./pages/advanced_pages/ManagersTask";
 
 
 
@@ -194,6 +195,16 @@ function App() {
           }
         />
 
+        <Route
+          path="/managed-tasks"
+          element={
+            <ProtectedRoute role="manager">
+              <Layout>
+                <ManagersTask />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
         
 
 

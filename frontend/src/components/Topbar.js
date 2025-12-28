@@ -9,21 +9,30 @@ const Topbar = () => {
   const location = useLocation();
   const { user } = useContext(AuthContext);
 
+  const isManager = user?.role?.toLowerCase() === "manager";
+
   const navLinks = [
     { label: "Projects", path: "/projects" },
     { label: "Tasks", path: "/tasks" },
     {
       label: "Dashboard",
-      path:
-        user?.role?.toLowerCase() === "manager"
-          ? "/manager-dashboard"
-          : "/user-dashboard",
+      path: isManager ? "/manager-dashboard" : "/user-dashboard",
     },
-    { 
-      label: "More", 
+    {
+      label: "More",
       dropdown: [
-        { label: "My Tasks", path: "/my-tasks" },
-        { label: "My Projects", path: "/my-projects" },
+        // 👤 USER ONLY
+        ...(!isManager
+          ? [{ label: "My Tasks", path: "/my-tasks" }]
+          : []),
+
+        // 👔 MANAGER ONLY
+        ...(isManager
+          ? [
+              { label: "My Projects", path: "/my-projects" },
+              { label: "Managed Tasks", path: "/managed-tasks" },
+            ]
+          : []),
       ],
     },
   ];
