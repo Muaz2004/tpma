@@ -45,15 +45,20 @@ const Topbar = () => {
         <div className="flex items-center justify-between h-20">
 
           {/* Logo */}
-          <Link
-            to="/Dashboard"
-            className="flex items-center gap-2 font-bold text-xl text-white hover:opacity-90 transition-opacity flex-shrink-0"
-          >
-            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-              <span className="text-green-600 font-bold">TP</span>
-            </div>
-            <span>TPMA</span>
-          </Link>
+         <Link
+  to={
+    user?.role?.toLowerCase() === "manager"
+      ? "/manager-dashboard"
+      : "/user-dashboard"
+  }
+  className="flex items-center gap-2 font-bold text-xl text-white hover:opacity-90 transition-opacity flex-shrink-0"
+>
+  <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+    <span className="text-green-600 font-bold">TP</span>
+  </div>
+  <span>TPMA</span>
+</Link>
+
 
           {/* Nav container styled as elliptical bar */}
           <div className="flex-1 mx-6">

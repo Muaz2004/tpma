@@ -1,21 +1,21 @@
-import React, { useState } from "react"; 
+import React, { useState, useContext } from "react"; 
 import { useQuery } from "@apollo/client";
-import { ClipboardList, Calendar, Users, Plus } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useContext } from "react";
+import { ClipboardList, Calendar, Users, Plus, Search } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-import { useParams } from "react-router-dom";
 import { GET_TASKS } from "../../graphql/LogicalQueries";
+import ReactPaginate from "react-paginate";
+
+const ITEMS_PER_PAGE = 6;
 
 const Tasks = () => {
   const { loading, error, data } = useQuery(GET_TASKS, {
     fetchPolicy: "network-only",
   });
   const { user } = useContext(AuthContext);
-  const { id } = useParams();
-
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(0); // react-paginate is 0-indexed
 
   if (loading)
     return (
@@ -31,7 +31,7 @@ const Tasks = () => {
       </p>
     );
 
-  if (data.allTasks.length === 0)
+  if (!data?.allTasks || data.allTasks.length === 0)
     return (
       <p className="text-center text-gray-500 mt-20">
         No tasks found.
@@ -39,22 +39,36 @@ const Tasks = () => {
     );
 
   const filteredTasks = data.allTasks.filter((task) =>
-  task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  task.description?.toLowerCase().includes(searchTerm.toLowerCase())
-);
+    task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    task.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
+  const pageCount = Math.ceil(filteredTasks.length / ITEMS_PER_PAGE);
+
+  const displayTasks = filteredTasks.slice(
+    currentPage * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE + ITEMS_PER_PAGE
+  );
 
   return (
     <div className="p-6">
 
-      
-      <input
-        type="text"
-        placeholder="Search tasks..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="mb-6 w-full md:w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
-      />
+      {/* 🔍 Modern Search Bar */}
+      <div className="flex justify-center mb-10">
+        <div className="relative w-full md:w-1/2">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Search tasks..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(0); // reset page when searching
+            }}
+            className="w-full pl-12 pr-4 py-3 rounded-full bg-white/10 backdrop-blur-md border border-emerald-400/30 text-emerald-300 placeholder-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition hover:text-emerald-200 hover:placeholder-emerald-200"
+          />
+        </div>
+      </div>
 
       {/* Intro message */}
       <p className="text-center text-emerald-600 font-medium mb-8 text-lg md:text-xl">
@@ -65,7 +79,6 @@ const Tasks = () => {
         <Link to="/tasks/add">
           <button
             className="fixed bottom-6 right-6 z-50 bg-emerald-500 text-white px-5 py-4 rounded-full shadow-lg hover:bg-emerald-600 transition-transform hover:scale-110 flex items-center gap-2"
-            title="Create Project"
           >
             <Plus size={24} />
             Add Task
@@ -73,9 +86,9 @@ const Tasks = () => {
         </Link>
       )}
 
-      
+      {/* Tasks Grid */}
       <div className="tasks-grid grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-        {filteredTasks.map((task) => {
+        {displayTasks.map((task) => {
           const statusColor =
             task.status === "Done"
               ? "bg-emerald-500"
@@ -132,6 +145,31 @@ const Tasks = () => {
         </p>
       )}
 
+      {/* React Paginate */}
+      {pageCount > 1 && (
+        <div className="flex justify-center mt-10">
+          <ReactPaginate
+  previousLabel={"Prev"}
+  nextLabel={"Next"}
+  breakLabel={"..."}
+  pageCount={pageCount}
+  marginPagesDisplayed={1}
+  pageRangeDisplayed={2}
+  onPageChange={(selectedItem) => setCurrentPage(selectedItem.selected)}
+  containerClassName="flex gap-2 flex-wrap justify-center mt-10"
+  pageClassName="rounded-full"
+  pageLinkClassName="px-3 py-1 text-emerald-300 bg-white/10 hover:bg-emerald-500/20 transition rounded-full"
+  activeClassName="bg-emerald-500"
+  activeLinkClassName="text-white"
+  previousClassName="rounded-full"
+  previousLinkClassName="px-3 py-1 text-emerald-300 bg-white/10 hover:bg-emerald-500/20 transition rounded-full"
+  nextClassName="rounded-full"
+  nextLinkClassName="px-3 py-1 text-emerald-300 bg-white/10 hover:bg-emerald-500/20 transition rounded-full"
+  breakClassName="px-3 py-1 text-emerald-300"
+/>
+
+        </div>
+      )}
     </div>
   );
 };
