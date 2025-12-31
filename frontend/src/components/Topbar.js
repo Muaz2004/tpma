@@ -140,13 +140,7 @@ const Topbar = () => {
                   >
                     Profile
                   </Link>
-                  <Link
-                    to="/logout"
-                    className="block px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150 border-t border-gray-100"
-                    onClick={() => setIsProfileOpen(false)}
-                  >
-                    Logout
-                  </Link>
+                 
                 </div>
               )}
             </div>
