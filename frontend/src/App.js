@@ -4,7 +4,6 @@ import Register from "./pages/Register";
 import ManagerDashboard from "./pages/ManagerDashboard";
 import UserDashboard from "./pages/UserDashboard";
 import Layout from "./components/Layout"; 
-import Logout from "./pages/Logout";
 import Profile from "./pages/LogicalPages/Profile";
 import Projects from "./pages/LogicalPages/Projects";
 import Tasks from "./pages/LogicalPages/Tasks";
@@ -20,6 +19,10 @@ import AssignTask from "./pages/LogicalPages/AssignTask";
 import MyTasks from "./pages/advanced_pages/MyTasks";
 import MyProjects from "./pages/advanced_pages/MyProjects";
 import ManagersTask from "./pages/advanced_pages/ManagersTask";
+import RoleRedirect from "./pages/RoleRedirect";
+import Logout from "./pages/logout";
+
+
 
 
 
@@ -27,8 +30,14 @@ function App() {
   return (
     <Router>
       <Routes>
+
+        <Route path="/" element={<RoleRedirect />} />
         <Route path="/login" element={<Login />} />
+        
         <Route path="/logout" element={<Logout />} />
+
+
+
         <Route path="/register" element={<Register />} />
 
         <Route
